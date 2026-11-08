@@ -36,25 +36,6 @@ jobs:
           set ftp:ssl-protect-data yes
           set ssl:verify-certificate yes
           set ftp:passive-mode yes
-          mirror --reverse --verbose --no-perms --parallel=2 \
-            --exclude-glob .git/ \
-            --exclude-glob .git/** \
-            --exclude-glob .github/ \
-            --exclude-glob .github/** \
-            --exclude-glob .gitignore \
-            --exclude-glob README.md \
-            --exclude-glob config.php \
-            --exclude-glob push_keys.json \
-            --exclude-glob .env \
-            --exclude-glob .env.* \
-            --exclude-glob '*.sql' \
-            --exclude-glob '*.log' \
-            --exclude-glob vendor/ \
-            --exclude-glob vendor/** \
-            --exclude-glob backup/ \
-            --exclude-glob backup/** \
-            --exclude-glob backups/ \
-            --exclude-glob backups/** \
-            ./ /default-website/Badminton/
+          put -O /default-website/Badminton/ index.html
           bye
           LFTP
