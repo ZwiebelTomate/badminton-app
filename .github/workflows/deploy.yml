@@ -1,0 +1,60 @@
+name: Badminton-App auf lima-city veröffentlichen
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: badminton-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository abrufen
+        uses: actions/checkout@v4
+
+      - name: FTPS-Werkzeug installieren
+        run: sudo apt-get update -qq && sudo apt-get install -y lftp
+
+      - name: Dateien sicher hochladen (ohne Löschungen)
+        env:
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${FTP_PASSWORD}" ]]; then
+            echo "FTP_PASSWORD ist nicht hinterlegt."
+            exit 1
+          fi
+          lftp -u "badmintongruppe,${FTP_PASSWORD}" ftp://badmintongruppe.lima-ftp.de <<'LFTP'
+          set cmd:fail-exit yes
+          set ftp:ssl-force yes
+          set ftp:ssl-protect-data yes
+          set ssl:verify-certificate yes
+          set ftp:passive-mode yes
+          mirror --reverse --verbose --no-perms --parallel=2 \
+            --exclude-glob .git/ \
+            --exclude-glob .git/** \
+            --exclude-glob .github/ \
+            --exclude-glob .github/** \
+            --exclude-glob .gitignore \
+            --exclude-glob README.md \
+            --exclude-glob config.php \
+            --exclude-glob push_keys.json \
+            --exclude-glob .env \
+            --exclude-glob .env.* \
+            --exclude-glob '*.sql' \
+            --exclude-glob '*.log' \
+            --exclude-glob vendor/ \
+            --exclude-glob vendor/** \
+            --exclude-glob backup/ \
+            --exclude-glob backup/** \
+            --exclude-glob backups/ \
+            --exclude-glob backups/** \
+            ./ /default-website/Badminton/
+          bye
+          LFTP
