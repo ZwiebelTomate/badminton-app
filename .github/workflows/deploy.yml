@@ -2,6 +2,12 @@ name: Badminton-App auf lima-city veröffentlichen
 
 on:
   workflow_dispatch:
+    inputs:
+      php_freigeben:
+        description: 'PHP-Dateien zusätzlich hochladen (erst nach Prüfung der Live-Version!)'
+        type: boolean
+        required: true
+        default: false
 
 permissions:
   contents: read
@@ -41,5 +47,25 @@ jobs:
           set ssl:verify-certificate yes
           set ftp:passive-mode yes
           put -O /default-website/Badminton/ index.html
+          bye
+          LFTP
+
+      - name: PHP-Dateien separat veröffentlichen (nur bei ausdrücklicher Freigabe)
+        if: ${{ inputs.php_freigeben == true }}
+        env:
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${FTP_PASSWORD}"
+          lftp -u "badmintongruppe,${FTP_PASSWORD}" ftp://badmintongruppe.lima-ftp.de <<'LFTP'
+          set cmd:fail-exit yes
+          set ftp:ssl-force yes
+          set ftp:ssl-protect-data yes
+          set ssl:verify-certificate yes
+          set ftp:passive-mode yes
+          put -O /default-website/Badminton/ api.php
+          put -O /default-website/Badminton/ poll_api.php
+          put -O /default-website/Badminton/ poll_automation.php
           bye
           LFTP
