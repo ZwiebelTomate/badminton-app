@@ -1,0 +1,2668 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta name="badminton-build" content="20261020-push-1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Badminton</title>
+<link rel="manifest" href="manifest.webmanifest?v=20261013b">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=20261013b">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=20261013b">
+<meta name="theme-color" content="#071426">
+<style>
+:root{--bg:#071522;--card:#102437;--card2:#142c42;--text:#f4f8fb;--muted:#91a7b8;--green:#20e477;--blue:#1687ff;--red:#ff3e67;--line:#294359}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#06111c,#0a1c2d 55%,#06111c);color:var(--text);font-family:Arial,sans-serif}.app{max-width:520px;margin:auto;min-height:100vh;padding-bottom:78px}header{padding:24px 18px 12px}.logo{font-size:27px;font-weight:800}.card{background:#102437f2;border:1px solid var(--line);border-radius:16px;margin:10px 14px;padding:16px}h2,h3{margin:0 0 12px}h2{font-size:20px}h3{font-size:16px}.small{font-size:12px;color:var(--muted)}button{border:0;border-radius:12px;padding:13px 15px;font-weight:700;font-size:14px;cursor:pointer}.primary{background:var(--green);color:#042113}.secondary{background:var(--card2);color:var(--text);border:1px solid var(--line)}.danger{background:#3b1721;color:#ff8ca5}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}input[type=date],input[type=text],input[type=number]{width:100%;background:#091a29;color:var(--text);border:1px solid var(--line);border-radius:11px;padding:12px;font-size:15px}label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}.player{display:flex;align-items:center;justify-content:space-between;background:#0b1d2d;border:1px solid #1d364b;border-radius:12px;padding:11px 12px;margin:7px 0}.player input{width:20px;height:20px;accent-color:var(--green)}.match{background:#0b1d2d;border:1px solid #233e54;border-radius:14px;padding:13px;margin:9px 14px}.matchhead{font-size:11px;color:var(--muted);margin-bottom:9px}.teams{display:grid;grid-template-columns:1fr 32px 1fr;gap:8px;align-items:center}.team{padding:11px;border-radius:11px;text-align:center;font-weight:700}.blue{background:#063a70}.red{background:#5c1427}.vs{text-align:center;color:var(--muted);font-size:12px}.winbtn{width:100%;margin-top:10px;background:#182f42;color:#fff;border:1px solid #34536a}.winbtn.active{outline:2px solid var(--green);background:#0d4b31}.skip{width:100%;margin-top:8px;background:#263343;color:#dce6ee;border:1px solid #405166}.pause{font-size:11px;color:var(--muted);margin-top:8px}.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.stat{background:#0b1d2d;border-radius:12px;padding:11px;text-align:center}.stat b{display:block;font-size:20px}.stat span{font-size:10px;color:var(--muted)}.table{width:100%;border-collapse:collapse;font-size:12px}.table th,.table td{padding:9px 5px;border-bottom:1px solid #223a4f;text-align:left}.table th{color:var(--muted)}.notice{padding:10px 12px;background:#102c3f;border-left:3px solid var(--green);border-radius:8px;font-size:12px;color:#c8d6e1}nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(520px,100%);display:grid;grid-template-columns:repeat(5,1fr);background:#091a29ed;border-top:1px solid var(--line);z-index:10}nav button{background:transparent;color:var(--muted);border-radius:0;padding:12px 4px}nav button.active{color:var(--green)}.hidden{display:none!important}.nameRow{display:grid;grid-template-columns:1fr auto;gap:8px;margin:8px 0}.nameRow button{padding:10px}
+
+/* iPhone / Safari: Datumsfeld sauber ausrichten */
+input[type="date"] {
+  box-sizing: border-box;
+  min-height: 46px;
+  line-height: normal;
+}
+@supports (-webkit-touch-callout: none) {
+  input[type="date"] {
+    display: block;
+    width: 100%;
+    height: 46px;
+    min-height: 46px;
+    padding-top: 0;
+    padding-bottom: 0;
+    line-height: 46px;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input[type="date"]::-webkit-date-and-time-value {
+    text-align: left;
+    height: 46px;
+    line-height: 46px;
+    padding: 0;
+    margin: 0;
+  }
+}
+
+
+/* Schönere Zeitfelder für "Von / Bis" */
+#apptFrom, #apptTo {
+  width: 100%;
+  box-sizing: border-box;
+  background: #101b2d;
+  color: #f5f7fb;
+  border: 1px solid #2a3950;
+  border-radius: 12px;
+  padding: 12px 14px;
+  min-height: 48px;
+  font: inherit;
+  color-scheme: dark;
+  outline: none;
+}
+#apptFrom:focus, #apptTo:focus {
+  border-color: #45d483;
+}
+#apptFrom::-webkit-calendar-picker-indicator,
+#apptTo::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: .8;
+}
+@supports (-webkit-touch-callout: none) {
+  #apptFrom, #apptTo {
+    -webkit-appearance: none;
+    appearance: none;
+    background: #101b2d;
+    color: #f5f7fb;
+    height: 48px;
+    line-height: 48px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
+
+
+#apptFrom, #apptTo {
+  width:100%;
+  box-sizing:border-box;
+  background:#101b2d;
+  color:#f5f7fb;
+  border:1px solid #2a3950;
+  border-radius:12px;
+  padding:12px 14px;
+  min-height:48px;
+  font:inherit;
+  color-scheme:dark;
+  outline:none;
+}
+#apptFrom:focus, #apptTo:focus { border-color:#45d483; }
+
+
+.appt-option{
+  margin-top:12px;
+  display:flex;
+  align-items:center;
+  gap:13px;
+  min-height:62px;
+  padding:12px 14px;
+  border:1px solid #2a3950;
+  border-radius:14px;
+  background:#101b2d;
+  font-weight:700;
+  font-size:17px;
+}
+.appt-option input{
+  width:25px !important;
+  height:25px !important;
+  min-width:25px;
+  accent-color:#45d483;
+}
+.appt-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.appt-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 11px;border-radius:12px;background:#18273a;
+  font-weight:700;font-size:14px
+}
+
+
+
+.cash-person-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.cash-person{
+  display:flex;align-items:center;gap:9px;padding:11px 12px;
+  border:1px solid #2a3950;border-radius:12px;background:#101b2d;font-weight:700
+}
+.cash-person input{width:22px!important;height:22px!important;min-width:22px;accent-color:#45d483}
+.cash-balance{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #26364a}
+.cash-balance:last-child{border-bottom:0}
+.cash-minus{font-weight:800;color:#ff6b6b}.cash-plus{font-weight:800;color:#45d483}.cash-zero{font-weight:800}
+.cash-entry{padding:11px 0;border-bottom:1px solid #26364a}.cash-entry:last-child{border-bottom:0}
+.cash-actions{display:flex;gap:8px;margin-top:8px}.cash-actions button{flex:1}
+.cash-home-row{display:flex;justify-content:space-between;gap:10px;padding:7px 0}
+
+
+/* Kasse: größere, dunkle Namens- und Auswahlfelder */
+#expensePayer, #settleFrom, #settleTo {
+  width:100%;
+  min-height:54px;
+  box-sizing:border-box;
+  background:#101b2d;
+  color:#f5f7fb;
+  border:1px solid #2a3950;
+  border-radius:14px;
+  padding:12px 14px;
+  font:inherit;
+  font-size:17px;
+  font-weight:700;
+  color-scheme:dark;
+  outline:none;
+}
+#expensePayer:focus, #settleFrom:focus, #settleTo:focus {
+  border-color:#45d483;
+}
+#expenseDate {
+  width:100%;
+  min-height:52px;
+  box-sizing:border-box;
+  background:#101b2d;
+  color:#f5f7fb;
+  border:1px solid #2a3950;
+  border-radius:14px;
+  padding:12px 14px;
+  font:inherit;
+  font-size:17px;
+  color-scheme:dark;
+}
+
+
+/* Kasse – kompaktere Eingabemaske */
+#expenseFormCard label {
+  display:block;
+  margin-bottom:6px;
+}
+#expenseDate {
+  min-height:44px !important;
+  height:44px;
+  padding:7px 11px !important;
+  font-size:16px !important;
+  border-radius:11px !important;
+}
+#expenseAmount {
+  min-height:44px;
+  height:44px;
+  padding:8px 11px;
+  border-radius:11px;
+}
+#expenseFormCard {
+  padding-top:16px;
+}
+#expenseFormCard h2 {
+  margin-top:0;
+  margin-bottom:14px;
+}
+#expenseParticipants {
+  margin-top:6px;
+}
+.cash-person {
+  min-height:46px;
+  padding:9px 11px;
+}
+
+
+#cashHomeCard {
+  margin-top:8px;
+  margin-bottom:12px;
+}
+#cashHomeCard h2 {
+  margin-bottom:6px !important;
+}
+#cashHomeCard .cash-home-row {
+  padding:6px 0;
+}
+
+
+/* Kasse insgesamt kompakter */
+#cash .card {
+  padding:12px;
+  margin-bottom:10px;
+}
+#cash h2 {
+  font-size:18px;
+  margin-bottom:8px;
+}
+#cash .small {
+  font-size:12px;
+}
+#cash .cash-balance {
+  padding:7px 0;
+  font-size:14px;
+}
+#cash .cash-entry {
+  padding:8px 0;
+  font-size:14px;
+}
+#cash .cash-entry .small {
+  line-height:1.35;
+}
+#cash .cash-person-grid {
+  gap:6px;
+}
+#cash .cash-person {
+  min-height:40px;
+  padding:7px 9px;
+  font-size:14px;
+  border-radius:10px;
+}
+#cash .cash-person input {
+  width:19px !important;
+  height:19px !important;
+  min-width:19px;
+}
+#cash #expensePayer,
+#cash #settleFrom,
+#cash #settleTo {
+  min-height:44px;
+  padding:8px 10px;
+  font-size:15px;
+  border-radius:11px;
+}
+#cash #expenseDate,
+#cash #expenseAmount,
+#cash #settleAmount {
+  min-height:40px !important;
+  height:40px;
+  padding:6px 9px !important;
+  font-size:15px !important;
+}
+#cash button {
+  min-height:40px;
+}
+#cash .cash-actions {
+  margin-top:6px;
+  gap:6px;
+}
+
+
+.cash-debt-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:8px 0;
+  border-bottom:1px solid #26364a;
+  font-size:14px;
+}
+.cash-debt-row:last-child{border-bottom:0}
+.cash-debt-row > strong{white-space:nowrap}
+
+
+/* Mobile Feinschliff */
+*{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:hidden}
+main{width:100%;max-width:720px;margin:0 auto;padding-left:12px!important;padding-right:12px!important}
+.card,.match{width:100%;max-width:100%;overflow:hidden}
+.grid2{min-width:0}
+.grid2>*{min-width:0}
+input,select,button{max-width:100%}
+
+#roundCount{
+  width:100%;
+  min-height:48px;
+  background:#101b2d;
+  color:#f5f7fb;
+  border:1px solid #2a3950;
+  border-radius:12px;
+  padding:10px 13px;
+  font:inherit;
+  font-size:16px;
+  font-weight:700;
+  color-scheme:dark;
+  outline:none;
+}
+#roundCount:focus{border-color:#45d483}
+
+.add-game-btn{
+  width:100%;
+  min-height:52px;
+  margin:12px 0 8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  border-radius:14px;
+  font-size:16px;
+  font-weight:800;
+  padding:11px 14px;
+}
+.add-game-plus{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:27px;
+  height:27px;
+  border-radius:50%;
+  background:rgba(255,255,255,.14);
+  font-size:21px;
+  line-height:1;
+}
+
+@media(max-width:430px){
+  main{padding-left:10px!important;padding-right:10px!important}
+  .card,.match{padding-left:12px!important;padding-right:12px!important}
+  .teams{gap:6px}
+  .team{min-width:0;overflow-wrap:anywhere}
+  nav button{font-size:11px;padding-left:2px!important;padding-right:2px!important}
+}
+
+
+/* iPhone / Safari Layout-Fix */
+html{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+  -webkit-text-size-adjust:100%;
+}
+body{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  margin:0;
+  overflow-x:hidden;
+}
+body,main,section,.card,.match,.grid2,.teams,.team,
+#home,#setup,#games,#appointments,#stats,#cash,
+#gameList,#cashBalances,#cashDebts,#expenseList,#appointmentList{
+  min-width:0;
+  max-width:100%;
+}
+main{
+  width:100%;
+  margin:0 auto;
+  padding-left:max(12px, env(safe-area-inset-left)) !important;
+  padding-right:max(12px, env(safe-area-inset-right)) !important;
+}
+.card,.match{
+  width:100%;
+}
+.grid2{
+  width:100%;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+}
+.teams{
+  width:100%;
+}
+.team{
+  min-width:0;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+input,select,textarea,button{
+  box-sizing:border-box;
+  min-width:0;
+  max-width:100%;
+}
+input[type="date"],
+input[type="time"],
+input[type="number"],
+select{
+  width:100%;
+}
+button{
+  white-space:normal;
+}
+.add-game-btn{
+  width:100% !important;
+  max-width:100%;
+  margin-left:0 !important;
+  margin-right:0 !important;
+}
+nav{
+  width:100%;
+  max-width:100vw;
+  padding-left:env(safe-area-inset-left);
+  padding-right:env(safe-area-inset-right);
+}
+nav button{
+  min-width:0;
+  overflow:hidden;
+}
+
+@media(max-width:480px){
+  main{
+    padding-left:max(10px, env(safe-area-inset-left)) !important;
+    padding-right:max(10px, env(safe-area-inset-right)) !important;
+  }
+  .grid2{
+    gap:8px;
+  }
+  .teams{
+    grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  }
+  nav button{
+    font-size:10px !important;
+    padding-left:1px !important;
+    padding-right:1px !important;
+  }
+}
+
+
+/* Untere Navigation wieder etwas größer */
+nav button{
+  font-size:12px !important;
+  min-height:58px;
+  padding:7px 3px calc(7px + env(safe-area-inset-bottom)) !important;
+  line-height:1.15;
+}
+@media(max-width:480px){
+  nav button{
+    font-size:12px !important;
+    min-height:58px;
+    padding-left:3px !important;
+    padding-right:3px !important;
+  }
+}
+
+
+/* FINALER iPHONE-FIX – ursprüngliche Proportionen beibehalten */
+html,body{
+  width:100% !important;
+  max-width:100% !important;
+  margin:0 !important;
+  overflow-x:hidden !important;
+}
+.app{
+  width:100% !important;
+  max-width:520px !important;
+  min-width:0 !important;
+  margin:0 auto !important;
+  overflow-x:hidden !important;
+  padding-bottom:78px !important;
+}
+header{
+  width:100%;
+  max-width:100%;
+  padding-left:18px;
+  padding-right:18px;
+}
+.card{
+  width:auto !important;
+  max-width:calc(100% - 28px) !important;
+  margin-left:14px !important;
+  margin-right:14px !important;
+}
+.match{
+  width:auto !important;
+  max-width:calc(100% - 28px) !important;
+  margin-left:14px !important;
+  margin-right:14px !important;
+}
+#gameList,#appointmentList,#expenseList,#cashBalances,#cashDebts{
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+}
+.grid2,.teams,.nameRow,.cash-person-grid{
+  max-width:100% !important;
+  min-width:0 !important;
+}
+.grid2>*,
+.teams>*,
+.nameRow>*,
+.cash-person-grid>*{
+  min-width:0 !important;
+}
+input,select,textarea{
+  max-width:100% !important;
+  min-width:0 !important;
+}
+.team{
+  min-width:0 !important;
+  overflow-wrap:anywhere;
+}
+.add-game-btn{
+  width:calc(100% - 28px) !important;
+  max-width:calc(100% - 28px) !important;
+  margin:12px 14px 8px !important;
+}
+
+/* Navigation wieder in Größe/Abständen wie die ursprüngliche Version */
+nav{
+  width:min(520px,100%) !important;
+  max-width:100% !important;
+  padding:0 !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  box-sizing:border-box !important;
+}
+nav button{
+  min-width:0 !important;
+  min-height:0 !important;
+  padding:12px 4px !important;
+  font-size:14px !important;
+  line-height:normal !important;
+  overflow:visible !important;
+  white-space:normal !important;
+}
+
+@media(max-width:380px){
+  nav button{
+    font-size:13px !important;
+    padding:12px 2px !important;
+  }
+}
+
+
+/* Persönlicher Startbereich */
+.personal-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.personal-change{width:auto!important;padding:7px 10px!important;min-height:36px!important;font-size:13px!important}
+.personal-chooser{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.personal-person{width:100%;min-width:0;padding:11px 8px!important}
+.personal-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.personal-stat{background:#101b2d;border:1px solid #26364a;border-radius:12px;padding:10px 6px;text-align:center;min-width:0}
+.personal-stat b{display:block;font-size:18px;white-space:nowrap}
+.personal-stat span{display:block;font-size:11px;opacity:.72;margin-top:3px}
+.personal-balance{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding:11px 12px;background:#101b2d;border:1px solid #26364a;border-radius:12px}
+.personal-balance strong{white-space:nowrap}
+@media(max-width:360px){.personal-stats{gap:5px}.personal-stat{padding-left:3px;padding-right:3px}.personal-stat b{font-size:16px}}
+
+
+.current-day-card{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.current-day-card:active{transform:scale(.992)}
+.current-day-card h3{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.current-day-arrow{font-size:26px;line-height:1;opacity:.7}
+
+
+/* iPhone Safe Area: Inhalt nicht unter Statusleiste / Dynamic Island */
+html{background:#071522}
+body{
+  min-height:100dvh;
+  padding-top:env(safe-area-inset-top, 0px);
+}
+.app{
+  min-height:calc(100dvh - env(safe-area-inset-top, 0px));
+  padding-bottom:calc(78px + env(safe-area-inset-bottom, 0px));
+}
+header{
+  padding-top:18px !important;
+}
+nav{
+  padding-bottom:env(safe-area-inset-bottom, 0px);
+}
+@supports(padding:max(0px)){
+  body{padding-top:max(env(safe-area-inset-top), 0px)}
+}
+
+.personal-opponents{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.personal-opponent{background:#101b2d;border:1px solid #26364a;border-radius:12px;padding:10px;min-width:0}
+.personal-opponent .small{margin-bottom:4px}
+.personal-opponent strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.personal-opponent span{font-size:12px;color:var(--muted)}
+@media(max-width:360px){.personal-opponents{grid-template-columns:1fr}}
+
+.rsvp-summary{margin-top:10px;padding:10px 11px;background:#101b2d;border:1px solid #26364a;border-radius:12px}
+.rsvp-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.rsvp-actions button{width:100%}
+.rsvp-yes{background:#0d4b31!important;border:1px solid #38cf79!important}
+.rsvp-no{background:#4b1c26!important;border:1px solid #b94b62!important}
+.appt-people-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:7px}
+.appt-person{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#0b1d2d;border:1px solid #1d364b;border-radius:12px;padding:10px 11px;margin:0;color:var(--text)}
+.appt-person input{width:20px;height:20px;accent-color:var(--green)}
+
+
+/* Feinschliff Termine + Kasse */
+.appt-dabei-btn{width:100%!important;display:block;margin-top:8px}
+.appt-small-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:8px}
+.appt-small-actions button{width:auto!important;min-height:34px!important;padding:6px 10px!important;font-size:12px!important;border-radius:9px!important}
+#cash #expenseDate{width:100%!important;max-width:100%!important;min-width:0!important;height:40px!important;box-sizing:border-box!important}
+#expenseCategory{
+  width:100%;min-height:44px;box-sizing:border-box;background:#101b2d;color:#f5f7fb;
+  border:1px solid #2a3950;border-radius:11px;padding:8px 10px;font:inherit;font-size:15px;color-scheme:dark
+}
+#expenseOther{width:100%;box-sizing:border-box}
+
+/* Zwei Kalender-Auswahlen */
+.calendar-choice{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.calendar-choice button{min-height:54px;padding:8px 7px!important;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px!important;font-weight:800}
+.google-cal-btn,.apple-cal-btn{background:#f7f8fb!important;color:#101522!important;border:1px solid #dfe3ea!important}
+.cal-icon{width:31px;height:31px;min-width:31px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;background:#fff;border:2px solid #4285f4;color:#1a73e8;box-shadow:inset 0 -7px 0 #34a853}
+.apple-cal-icon{border-color:#ef5350;color:#202124;box-shadow:inset 0 8px 0 #ef5350;background:#fff;padding-top:5px}
+@media(max-width:360px){.calendar-choice{grid-template-columns:1fr}.calendar-choice button{font-size:14px!important}}
+
+.calendar-modal{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:20px}
+.calendar-modal-card{width:min(100%,380px);background:#101b2d;border:1px solid #2a3950;border-radius:18px;padding:18px;box-shadow:0 18px 55px rgba(0,0,0,.45)}
+.calendar-modal-card h3{margin:0 0 6px}
+.calendar-modal-card button{width:100%;min-height:48px}
+
+/* Startseite: nächster Termin kompakt + antippbar */
+.next-appt-card{cursor:pointer;border:1px solid #38cf79!important;background:linear-gradient(135deg,#12352a,#112932)!important;position:relative}
+.next-appt-card:active{transform:scale(.992)}
+.next-appt-hint{margin-top:8px;opacity:.72}
+
+/* Kalender-Buttons – an die bekannten Google-/Apple-Kalender-Symbole angelehnt */
+.google-calendar-logo{position:relative;width:34px;height:34px;min-width:34px;border-radius:7px;background:#fff;display:inline-flex;align-items:center;justify-content:center;color:#1a73e8;font-weight:900;font-size:14px;overflow:hidden;border:1px solid #e6e8ec}
+.google-calendar-logo:before{content:"";position:absolute;left:0;top:0;width:100%;height:7px;background:linear-gradient(90deg,#4285f4 0 28%,#ea4335 28% 52%,#fbbc04 52% 75%,#34a853 75%)}
+.google-calendar-logo:after{content:"";position:absolute;left:0;bottom:0;width:7px;height:27px;background:#4285f4}
+.google-calendar-logo span{position:relative;z-index:1;margin-top:5px}
+.apple-calendar-logo{width:34px;height:34px;min-width:34px;border-radius:8px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow:hidden;border:1px solid #e0e0e0;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.apple-cal-day{width:100%;height:12px;line-height:12px;background:#ff3b30;color:#fff;font-size:7px;font-weight:900;text-align:center;letter-spacing:.4px}
+.apple-cal-date{color:#171717;font-size:17px;line-height:21px;font-weight:500}
+
+/* Startkarten komplett antippbar */
+.home-link-card{cursor:pointer;position:relative}
+.home-link-card:active{transform:scale(.992)}
+.home-link-hint{margin-top:8px;opacity:.68}
+
+/* Startseite feste Reihenfolge:
+   1 nächster Termin, 2 persönlicher Bereich, 3 heutiger Spieltag, 4 wer ist dran */
+#home{display:flex;flex-direction:column}
+#myNextAppointmentCard{order:1}
+#personalCard{order:2}
+#home > .home-link-card:not(#cashHomeCard):not(#myNextAppointmentCard){order:3}
+#todayCourtCard{order:3}
+#cashHomeCard{order:4}
+
+.delete-day-wrap{text-align:center;margin:8px 0 18px}
+.delete-day-small{width:auto!important;min-height:34px!important;padding:7px 12px!important;font-size:12px!important;opacity:.82}
+
+.celebration-layer{position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden}
+.celebration-layer span{position:absolute;top:-40px;font-size:24px;animation:celebrateFall 1.5s ease-in forwards}
+@keyframes celebrateFall{0%{transform:translateY(-20px) rotate(0);opacity:0}10%{opacity:1}100%{transform:translateY(105vh) rotate(540deg);opacity:.15}}
+
+/* Kompakter Kopf im Spielplan */
+.game-top-compact{padding:14px 16px}
+.game-top-row,.players-inline,.pause-compact{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.players-inline{margin-top:12px;padding-top:11px;border-top:1px solid rgba(255,255,255,.09)}
+.compact-action,.pause-small{width:auto!important;min-height:34px!important;padding:7px 10px!important;font-size:12px!important;white-space:nowrap}
+.pause-compact{padding:11px 14px!important}
+.pause-small{margin:0!important}
+.compact-save{width:auto!important;margin-top:10px!important;padding:8px 12px!important;min-height:36px!important;font-size:13px!important}
+
+/* Minimaler Spielplan-Kopf */
+.game-tools-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 2px 8px}
+.edit-game-small{width:auto!important;min-height:30px!important;padding:5px 9px!important;font-size:11px!important}
+.pause-tap{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 2px 9px;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,.055);cursor:pointer;font-size:12px}
+.pause-tap:active{transform:scale(.99)}
+.pause-tap #personalPauseText{margin:0!important;text-align:right}
+
+/* Wunschpause: ein einziges antippbares Feld */
+.pause-field{display:flex;align-items:center;gap:10px;margin:6px 0 12px;padding:10px 12px;border:1px solid rgba(255,255,255,.10);border-radius:12px;background:rgba(255,255,255,.045);cursor:pointer;user-select:none}
+.pause-field:active{background:rgba(255,255,255,.085);transform:scale(.995)}
+.pause-field-icon{font-size:17px;line-height:1}
+.pause-field-main{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0;flex:1;font-size:13px}
+.pause-field-status{font-size:11px;opacity:.72;text-align:right}
+.pause-field-arrow{font-size:21px;line-height:1;opacity:.45}
+
+.pause-field.pause-active{border-color:rgba(82,210,143,.38);background:rgba(82,210,143,.10)}
+.pause-field.pause-active .pause-field-status{opacity:1}
+
+#personalPauseCard.pause-field:not(.hidden){display:flex!important}
+
+/* Pull to refresh */
+.pull-refresh-indicator{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 5px);z-index:9998;display:flex;align-items:center;gap:7px;padding:7px 11px;border-radius:18px;background:#102535;box-shadow:0 4px 16px rgba(0,0,0,.24);font-size:11px;opacity:0;transform:translate(-50%,-48px);transition:transform .16s ease,opacity .16s ease;pointer-events:none;white-space:nowrap}
+.pull-refresh-indicator.visible{opacity:1}
+.pull-refresh-indicator.refreshing span:first-child{animation:pullSpin .7s linear infinite}
+@keyframes pullSpin{to{transform:rotate(360deg)}}
+
+.next-appt-payer{margin-top:10px;padding-top:9px;border-top:1px solid rgba(255,255,255,.09);font-size:13px}
+.next-appt-payer.muted{opacity:.68}
+
+.next-appt-payer-link{cursor:pointer;display:flex;align-items:center;gap:5px}
+.next-appt-payer-link:active{opacity:.72}
+.payer-arrow{margin-left:auto;font-size:18px;opacity:.7}
+
+.next-appt-people{margin-top:7px;opacity:.78;line-height:1.4}
+.history-heading{margin:15px 4px 7px;font-weight:800;opacity:.75}
+.install-hint{position:fixed;z-index:9997;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 10px);max-width:496px;margin:auto;background:#102b36;border:1px solid rgba(72,218,135,.45);border-radius:15px;padding:11px 42px 11px 13px;box-shadow:0 8px 28px rgba(0,0,0,.3);display:flex;align-items:center;gap:10px}
+.install-hint.hidden{display:none}
+.install-hint>div{flex:1}.install-hint-action{width:auto!important;padding:7px 10px!important;font-size:11px!important}.install-hint-close{position:absolute;right:7px;top:6px;width:30px!important;height:30px!important;padding:0!important;background:transparent!important;font-size:21px!important}
+
+.app-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.settings-gear{width:42px!important;height:42px!important;padding:0!important;border-radius:50%!important;background:#102437f2!important;color:var(--text)!important;border:1px solid var(--line)!important;font-size:20px!important}
+.user-hidden{display:none!important}
+.settings-overlay{position:fixed;inset:0;z-index:10020;background:rgba(2,9,17,.68);display:flex;align-items:flex-end;justify-content:center;padding:12px}
+.settings-overlay.hidden{display:none}
+.settings-sheet{width:min(520px,100%);max-height:88vh;overflow:auto;background:#0c1d2d;border:1px solid var(--line);border-radius:20px;padding:17px 14px calc(18px + env(safe-area-inset-bottom,0px));box-shadow:0 -12px 40px rgba(0,0,0,.38)}
+.settings-title{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:0 3px 6px}.settings-title h2{margin:3px 0 0}.settings-close{width:38px!important;height:38px!important;padding:0!important;border-radius:50%!important;background:var(--card2)!important;color:var(--text)!important;font-size:23px!important}
+.settings-block{background:#102437f2;border:1px solid var(--line);border-radius:15px;padding:14px;margin-top:10px}.settings-player{font-size:19px;font-weight:800;margin:8px 0}.settings-name-btn{width:100%;padding:9px 12px!important}.settings-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 2px;border-top:1px solid rgba(255,255,255,.07)}.settings-toggle:first-of-type{margin-top:4px}.settings-toggle input{width:22px;height:22px;accent-color:var(--green)}
+
+.home-order-list{margin-top:5px}
+.home-order-item{display:flex;align-items:center;gap:10px;min-height:48px;padding:7px 2px;border-top:1px solid rgba(255,255,255,.07);touch-action:none;user-select:none;-webkit-user-select:none}
+.home-order-item:first-child{border-top:0}
+.home-order-item.dragging{opacity:.45}
+.home-order-item.drag-over{background:rgba(56,207,121,.10);border-radius:10px}
+.drag-handle{font-size:24px;line-height:1;opacity:.65;cursor:grab;width:25px;text-align:center}
+.home-order-label{flex:1}
+.home-order-item input{width:22px;height:22px;accent-color:var(--green);flex:0 0 auto}
+#homeGameBlock.user-hidden{display:none!important}
+
+.first-user-overlay{position:fixed;inset:0;z-index:10050;background:rgba(2,9,17,.88);display:flex;align-items:center;justify-content:center;padding:18px}.first-user-overlay.hidden{display:none}.first-user-card{width:min(430px,100%);background:#0c1d2d;border:1px solid var(--line);border-radius:22px;padding:22px 16px calc(20px + env(safe-area-inset-bottom,0px));box-shadow:0 20px 60px rgba(0,0,0,.48);text-align:center}.first-user-icon{font-size:42px;margin-bottom:5px}.first-user-card h2{margin:4px 0 5px}.first-user-card .personal-chooser{margin-top:16px;text-align:left}
+
+.header-greeting{font-size:11px;color:var(--muted);margin-top:1px;min-height:14px}
+.parallel-box{margin:8px 0 14px;padding:12px;border:1px dashed rgba(56,207,121,.55);border-radius:14px;background:rgba(56,207,121,.06)}
+.parallel-title{font-weight:800;margin-bottom:4px}
+.parallel-note{font-size:11px;color:var(--muted);margin:4px 0 9px}
+.parallel-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.parallel-actions button{font-size:12px!important;padding:8px!important}
+#pauseGamePicker{z-index:1200}
+#pauseGamePicker .modal-card{width:min(92vw,440px);max-height:85vh;overflow:auto}
+#pauseGamePicker .checkrow{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid rgba(255,255,255,.07)}
+#pauseGamePicker .checkrow input{width:22px;height:22px;accent-color:var(--green)}
+
+/* Feste Reihenfolge Startseite */
+#home{display:flex;flex-direction:column}
+#myNextAppointmentCard{order:1}
+#personalCard{order:2}
+#cashHomeCard{order:3}
+#homeGameBlock{order:99}
+
+.next-card-greeting{font-weight:800;font-size:17px;margin-bottom:7px;color:inherit}
+
+#headerGreeting.home-top-greeting{
+  order:-999!important;
+  display:block!important;
+  align-self:center!important;
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+  text-align:center!important;
+  font-size:21px!important;
+  line-height:1.25!important;
+  font-weight:800!important;
+  letter-spacing:-0.25px!important;
+  margin:4px auto 16px!important;
+  padding:8px 16px!important;
+}
+
+#home > #headerGreeting.home-top-greeting{text-align:center!important;justify-content:center!important}
+
+/* Pausenspiel-Auswahl als echtes Popup */
+#pauseGamePicker.overlay{
+ position:fixed!important;inset:0!important;z-index:9999!important;
+ display:flex;align-items:center;justify-content:center;
+ padding:18px;box-sizing:border-box;background:rgba(4,12,24,.72);
+ backdrop-filter:blur(4px);
+}
+#pauseGamePicker.overlay.hidden{display:none!important}
+#pauseGamePicker .modal-card{
+ width:min(100%,420px)!important;max-height:80vh;overflow:auto;
+ margin:0!important;border-radius:18px;
+}
+
+/* Kleine Vorschau auf das bereits erzeugte nächste Spiel */
+.next-game-mini{
+ margin:7px 0 2px;padding:5px 8px;border-radius:8px;
+ background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);
+ font-size:10px;color:var(--muted);line-height:1.3
+}
+.next-game-mini strong{color:var(--text);font-size:10px}
+
+.backup-row{padding:10px 0;border-top:1px solid rgba(255,255,255,.08)}
+.backup-row:first-child{border-top:0}.backup-actions{display:flex;gap:7px;margin-top:7px}.backup-actions button{flex:1;padding:8px!important;font-size:12px!important}.backup-status{margin-top:8px;text-align:center}
+
+/* TEST-DESIGN 2026: moderner iPhone-Look – nur Darstellung */
+:root{--bg:#061016;--card:#0b1b20;--card2:#10252b;--text:#f7fbfa;--muted:#91a8a5;--green:#55ed83;--blue:#1687ff;--red:#ff5a63;--line:#1c3a3e}
+body{background:radial-gradient(circle at 50% -10%,#12332f 0,#07171a 32%,#040c11 78%) fixed!important}
+.app{background:transparent!important}
+header.app-header{padding:18px 18px 10px!important;position:relative}
+.logo{font-size:25px!important;letter-spacing:-.6px}
+.settings-gear{background:rgba(15,37,42,.88)!important;border-color:#23464a!important;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.card,.match{background:linear-gradient(145deg,rgba(13,34,39,.97),rgba(8,25,30,.97))!important;border:1px solid #1b3b3f!important;border-radius:18px!important;box-shadow:0 7px 24px rgba(0,0,0,.16)}
+#myNextAppointmentCard .card,.next-appt-card{background:linear-gradient(135deg,#0e392b,#0b2827)!important;border-color:#37d979!important;box-shadow:0 8px 28px rgba(25,206,108,.10)!important}
+.home-top-greeting{font-size:23px!important;letter-spacing:-.55px!important;margin-bottom:13px!important}
+h2{letter-spacing:-.35px}.small{color:#91aaa8!important}
+button{border-radius:13px!important}.primary{background:linear-gradient(135deg,#5df18a,#42dc73)!important;color:#062014!important;box-shadow:0 5px 16px rgba(64,224,120,.14)}
+.secondary{background:#102329!important;border-color:#234047!important}
+.player,.personal-stat,.personal-opponent,.rsvp-summary,.cash-person{background:#0a1c21!important;border-color:#1c383e!important}
+.team.blue{background:#103c52!important}.team.red{background:#55202d!important}
+input[type=date],input[type=text],input[type=number],select{background:#091a1f!important;border-color:#234047!important}
+nav{background:rgba(5,17,21,.94)!important;border-top:1px solid #18363a!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);padding-top:3px!important}
+nav button{color:#819794!important;font-size:12px!important;font-weight:700!important;padding:9px 2px calc(8px + env(safe-area-inset-bottom))!important}
+nav button.active{color:#55ed83!important}
+.next-appt-hint,.home-link-hint{font-size:11px!important}
+#personalCard{padding-top:14px!important}
+.personal-stats{gap:7px!important}.personal-stat{border-radius:14px!important;padding:11px 5px!important}.personal-stat b{font-size:20px!important}
+.cash-balance,.cash-debt-row{border-color:#17343a!important}
+.pause-field{background:#0a1c21!important;border-color:#1c383e!important;border-radius:14px!important}
+.game-tools-row{padding:0 3px}.edit-game-small{background:#102329!important}
+/* Karten auf der Startseite etwas luftiger, ohne Inhalte/Funktionen zu ändern */
+#home .card{padding:17px!important}
+#homeDate{font-size:19px!important}
+
+/* Klassischer dunkler Look – ohne Foto-Hintergrund */
+html{background:#061016!important}
+body{
+ background:radial-gradient(circle at 50% -10%,#12332f 0,#07171a 32%,#040c11 78%) fixed!important;
+ background-image:none!important;
+}
+body::before,body::after{content:none!important;display:none!important}
+.app{position:relative!important;z-index:1!important;background:transparent!important}
+.card,.match{background:linear-gradient(145deg,rgba(13,34,39,.97),rgba(8,25,30,.97))!important;border:1px solid #1b3b3f!important;border-radius:18px!important;box-shadow:0 7px 24px rgba(0,0,0,.16)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.next-appt-card,#myNextAppointmentCard>.card{background:linear-gradient(135deg,#0e392b,#0b2827)!important;border-color:#37d979!important;box-shadow:0 8px 28px rgba(25,206,108,.10)!important}
+.player,.personal-stat,.personal-opponent,.personal-balance,.rsvp-summary,.cash-person,.appt-option,.appt-person,.pause-field,.parallel-box,.next-game-mini{background:#0a1c21!important;border-color:#1c383e!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.personal-balance{background:#101b2d!important}
+.secondary,.winbtn,.skip{background:#102329!important;border-color:#234047!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+input[type=date],input[type=text],input[type=number],input[type=time],select,#apptFrom,#apptTo,#expensePayer,#settleFrom,#settleTo,#expenseCategory,#roundCount{background:#091a1f!important;border-color:#234047!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+nav{background:rgba(5,17,21,.96)!important;border-top:1px solid #18363a!important;box-shadow:none!important;backdrop-filter:blur(18px)!important;-webkit-backdrop-filter:blur(18px)!important}
+.settings-sheet,.settings-block,.modal-card,.calendar-modal-card,.first-user-card{background:#0c1d2d!important;border-color:#1c3a3e!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.settings-gear{background:#102437f2!important;border-color:#23464a!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+
+
+#manualRoundForm select{width:100%;background:#091a29;color:var(--text);border:1px solid var(--line);border-radius:11px;padding:12px;font-size:14px;min-width:0}#manualRoundForm .grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+#statsRangeButtons button.stats-range-selected{
+ background:#197c68!important;color:#fff!important;border-color:#29bd9c!important;
+ box-shadow:0 0 0 2px rgba(41,189,156,.25),inset 0 1px 0 rgba(255,255,255,.14);
+ font-weight:750;
+}
+/* Verhindert versehentliches Pinch- und Doppeltipp-Zoomen; Scrollen bleibt möglich. */
+html, body { touch-action: pan-x pan-y; }
+</style>
+</head>
+<body>
+<div id="pullRefreshIndicator" class="pull-refresh-indicator" aria-hidden="true"><span>↓</span><span id="pullRefreshText">Zum Aktualisieren ziehen</span></div>
+
+<div id="firstUserOverlay" class="first-user-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="firstUserTitle"><div class="first-user-card"><div class="first-user-icon">🏸</div><h2 id="firstUserTitle">Wer bist du?</h2><div class="small">Wähle einmal deinen Namen aus. Dieses Gerät merkt sich deine Auswahl.</div><div id="firstUserChooser" class="personal-chooser"></div></div></div>
+<div class="app">
+<header class="app-header"><div><div class="logo">🏸 Badminton</div></div><button class="settings-gear" onclick="openSettings()" aria-label="Meine Einstellungen">⚙️</button></header>
+<section id="stats" class="hidden"><div class="card"><h2>Statistik</h2><div class="grid2" id="statsRangeButtons"><button class="secondary" data-range="day" onclick="renderStats('day')">Heute</button><button class="secondary" data-range="week" onclick="renderStats('week')">Woche</button><button class="secondary" data-range="month" onclick="renderStats('month')">Monat</button><button class="secondary" data-range="all" onclick="renderStats('all')">Gesamt</button></div></div><div class="card"><div id="statsContent"></div></div><div class="card"><h2>Spieltage verwalten</h2><div class="small" style="margin-bottom:10px">Hier kannst du einzelne Spieltage öffnen, Ergebnisse korrigieren oder nur diesen Spieltag löschen.</div><div id="dayManager"></div></div><div class="card"><button class="danger" onclick="deleteStats()" style="width:100%">🗑 Alle Statistiken löschen</button><div class="small" style="margin-top:8px">Löscht alle bisherigen Spieltage und Ergebnisse. Die Spielernamen bleiben erhalten.</div></div></section>
+<div id="settingsOverlay" class="settings-overlay hidden" onclick="if(event.target===this)closeSettings()">
+ <div class="settings-sheet">
+  <div class="settings-title"><div><div class="small">Persönlich auf diesem Gerät</div><h2>⚙️ Meine Einstellungen</h2></div><button class="settings-close" onclick="closeSettings()" aria-label="Schließen">×</button></div>
+  <div class="settings-block"><strong>👤 Ich bin</strong><div id="settingsPlayer" class="settings-player"></div><button class="secondary settings-name-btn" onclick="settingsChooseMe()">Spieler wechseln</button><div id="settingsPlayerChooser" class="personal-chooser hidden"></div></div>
+  <div class="settings-block"><strong>🔔 Push-Benachrichtigungen</strong><div class="small" style="margin:7px 0 10px">Erinnerung am Vortag um 20 Uhr – nur wenn du beim Termin auf „Dabei“ stehst.</div><label class="settings-toggle"><span>⏰ Erinnerung am Vortag um 20 Uhr</span><input id="pushPrefReminder" type="checkbox" checked onchange="savePushPreferences()"></label><div class="small" style="margin:8px 0">Diese Einstellung gilt für dieses Gerät.</div><button id="pushEnable" class="primary" style="width:100%" onclick="enableBadmintonPush()">🔔 Benachrichtigungen aktivieren</button><button id="pushDisable" class="secondary hidden" style="width:100%;margin-top:8px" onclick="disableBadmintonPush()">Benachrichtigungen deaktivieren</button><div id="pushStatus" class="small" style="margin-top:9px" aria-live="polite"></div></div>
+  <div class="settings-block"><strong>💾 Datensicherung</strong><div class="small" style="margin:6px 0 10px">Vor jeder echten Änderung wird der vorherige Datenstand automatisch gesichert. Die letzten 100 Sicherungen bleiben erhalten.</div><button class="secondary" style="width:100%" onclick="createManualBackup()">＋ Backup jetzt erstellen</button><button class="secondary" style="width:100%;margin-top:8px" onclick="toggleBackupList()">🕘 Backups anzeigen</button><div id="backupList" class="hidden" style="margin-top:10px"></div></div>
+  
+ </div>
+</div>
+
+
+
+<section id="home">
+<div id="pollHomeCard" class="card" style="display:none;margin:12px 0">
+<strong>🏸 Neue Terminabstimmung</strong>
+<p>Stimme für die nächsten drei Wochen ab.</p>
+<button onclick="show('appointments')">Jetzt abstimmen</button>
+</div>
+<div id="pushStartBanner" class="card" style="border:1px solid #38cf79!important;background:linear-gradient(135deg,#12352a,#112932)!important;text-align:center">
+ <div style="font-size:24px;margin-bottom:6px">🔔</div>
+ <strong style="font-size:18px">Jetzt Push aktivieren!</strong>
+ <div class="small" style="margin:8px 0 12px">Erhalte am Vortag um 20:00 Uhr eine Erinnerung, wenn du bei einem Badminton-Termin dabei bist.</div>
+ <button id="pushStartButton" class="primary" style="width:100%" onclick="enableBadmintonPush()">🔔 Jetzt Push aktivieren</button>
+ <div id="pushStartHelp" class="small" style="margin-top:9px" aria-live="polite"></div>
+</div>
+<div id="headerGreeting" class="home-top-greeting"></div>
+<div id="myNextAppointmentCard">
+  </div>
+<div class="card" id="personalCard">
+  <div class="small">Mein Bereich</div>
+  <div class="personal-head">
+    <div>
+      <h2 id="personalGreeting" style="margin:3px 0 0">Wer bist du?</h2>
+      <div class="small" id="personalHint">Einmal auswählen – das Gerät merkt sich dich.</div>
+    </div>
+  </div>
+  <div id="personalChooser" style="margin-top:10px"></div>
+  <div id="personalOverview" class="hidden"></div>
+</div>
+<div id="homeGameBlock" class="hidden">
+ <div class="card home-link-card" role="button" tabindex="0" onclick="show('setup')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();show('setup')}">
+  <div class="small">Heutiger Spieltag</div>
+  <h2 id="homeDate"></h2>
+  <div class="small home-link-hint">Tippen zum Öffnen ›</div>
+ </div>
+ <div id="todayCourtCard"></div>
+</div>
+
+
+
+</section>
+
+<section id="setup" class="hidden">
+<div class="card"><h2>Spieltag erstellen</h2><label>Datum</label><input id="date" type="date"><div style="height:14px"></div><h3>Wer ist heute da?</h3><div id="players"></div><button class="primary" style="width:100%;margin-top:12px" onclick="createDay()">▶ Erste Runde starten</button>
+<div class="card"><button class="secondary" style="width:100%" onclick="show('manage')">✎ Namen bearbeiten</button></div>
+</section>
+
+<section id="manage" class="hidden"><div class="card"><h2>Namen bearbeiten</h2><div id="nameInputs"></div>
+<button class="secondary" style="width:100%;margin-top:10px" onclick="addNameField()">＋ Weiteren Spieler hinzufügen</button>
+<button class="primary" style="width:100%;margin-top:10px" onclick="saveNames()">✓ Namen speichern</button></div></section>
+
+<div id="pauseGamePicker" class="overlay hidden">
+ <div class="modal-card">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+   <h2 id="pauseGamePickerTitle" style="margin:0">Pausenspiel</h2>
+   <button class="secondary" style="width:auto" onclick="closePauseGamePicker()">✕</button>
+  </div>
+  <div class="small" style="margin:8px 0 10px">Wähle aus, wer wirklich spielen möchte. Nicht ausgewählte Spieler machen einfach weiter Pause.</div>
+  <div id="pauseGamePickerPlayers"></div><div id="pauseGameWinnerWrap" class="hidden" style="margin-top:12px"><label for="pauseGameWinner">Ergebnis (optional)</label><select id="pauseGameWinner"><option value="">Noch kein Ergebnis</option><option value="0">Team 1 gewinnt</option><option value="1">Team 2 gewinnt</option></select></div>
+  <button class="primary" style="width:100%;margin-top:12px" onclick="confirmPauseGame()">🏸 Pausenspiel starten</button>
+ </div>
+</div>
+
+<section id="games" class="hidden">
+<div class="game-tools-row">
+  <div class="small" id="gameInfo"></div>
+  <button class="secondary edit-game-small" onclick="toggleLivePlayers()">✏️ Bearbeiten</button>
+</div>
+<div id="livePlayersSummary" class="hidden"></div>
+<div id="livePlayersEditor" class="card hidden" style="margin-top:8px">
+  <div class="small" style="margin-bottom:8px">Spieler für die nächsten Runden ändern:</div>
+  <div id="livePlayersList"></div>
+  <button class="compact-save" onclick="saveLivePlayers()">✓ Übernehmen</button>
+</div>
+<div id="personalPauseCard" class="pause-field hidden" role="button" tabindex="0" onclick="togglePersonalPause()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();togglePersonalPause()}">
+  <span class="pause-field-icon">☕</span>
+  <span class="pause-field-main"><strong>Wunschpause</strong><span id="personalPauseText" class="pause-field-status"></span></span>
+  <span class="pause-field-arrow">›</span>
+</div>
+
+<div id="gameList"></div><div id="parallelGames"></div>
+<div class="card" style="margin-top:10px"><button class="secondary" style="width:100%" onclick="openManualRoundForm()">＋ Spiel manuell hinzufügen</button><div class="small" style="margin-top:7px">Teams selbst zusammenstellen oder ein gespieltes Match nachtragen. Noch offene Runden kannst du verschieben.</div></div>
+<div id="manualRoundForm" class="card hidden" style="border-color:var(--green)"><h3 id="manualRoundTitle">Spiel manuell hinzufügen</h3><div class="small" style="margin-bottom:10px">Spieler auswählen. Ein freies Feld bedeutet: Dieser Platz bleibt leer.</div>
+<div class="grid2"><div><label>Team Blau – Spieler 1</label><select id="manualBlue1"></select></div><div><label>Team Blau – Spieler 2</label><select id="manualBlue2"></select></div><div><label>Team Rot – Spieler 1</label><select id="manualRed1"></select></div><div><label>Team Rot – Spieler 2</label><select id="manualRed2"></select></div></div>
+<label style="margin-top:12px">Ergebnis</label><select id="manualRoundWinner"><option value="">Noch nicht gespielt</option><option value="0">Team Blau hat gewonnen</option><option value="1">Team Rot hat gewonnen</option></select>
+<div class="grid2" style="margin-top:12px"><button onclick="saveManualRound()">✓ Spiel übernehmen</button><button class="secondary" onclick="closeManualRoundForm()">Abbrechen</button></div></div><button id="undoRoundBtn" class="secondary hidden" style="width:calc(100% - 28px);margin:8px 14px 0" onclick="undoLastRound()">↩️ Letzte Runde zurück</button><button id="addGameBtn" class="add-game-btn" onclick="addAnotherGame()"><span class="add-game-plus">＋</span><span>Weiteres Spiel</span></button><div class="card"><button id="manualSaveBtn" onclick="manualSave()" style="width:100%">💾 Ergebnisse speichern</button><div id="saveStatus" class="small" style="text-align:center;margin-top:8px"></div></div>
+<div class="delete-day-wrap"><button class="danger delete-day-small" onclick="deleteCurrentDay()">🗑️ Spielplan löschen</button></div>
+</section>
+
+<section id="cash" class="hidden">
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div><h2 style="margin:0">💰 Badminton-Kasse</h2><div class="small">Gemeinsame Ausgaben und Kontostände.</div></div>
+      <button onclick="openExpenseForm()" aria-label="Neue Ausgabe" style="font-size:25px;line-height:1;width:48px;height:48px;padding:0;border-radius:50%">＋</button>
+    </div>
+  </div>
+
+  <div id="cashBalances"></div>
+  <div class="card">
+    <h2 style="margin-top:0">↔ Wer schuldet wem?</h2>
+    <div class="small" style="margin-bottom:8px">Automatisch aus den aktuellen Kontoständen berechnet.</div>
+    <div id="cashDebts"></div>
+  </div>
+
+  <div id="expenseFormCard" class="card hidden">
+    <h2 id="expenseFormTitle">Neue Ausgabe</h2>
+    <label>Datum der Ausgabe</label>
+    <input id="expenseDate" type="date">
+    <label style="margin-top:10px">Kategorie</label>
+    <select id="expenseCategory" onchange="updateExpenseCategory(); if(!editingExpenseId) prefillExpenseForDate()">
+      <option value="Badminton">🏸 Badminton</option>
+      <option value="Essen">🍽️ Essen</option>
+      <option value="Zubehör">🎒 Zubehör</option>
+      <option value="Sonstiges">📦 Sonstiges</option>
+    </select>
+    <div id="expenseOtherWrap" class="hidden" style="margin-top:10px">
+      <label>Was ist es?</label>
+      <input id="expenseOther" type="text" maxlength="80" placeholder="z. B. Getränke">
+    </div>
+    <label style="margin-top:10px">Betrag (€)</label>
+    <input id="expenseAmount" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="48,00">
+    <div id="expensePriceHint" class="small" style="margin-top:6px"></div>
+    <label style="margin-top:10px">Bezahlt von</label>
+    <select id="expensePayer"></select>
+    <label style="margin-top:12px">Aufteilen auf</label>
+    <div id="expenseParticipants" class="cash-person-grid"></div>
+    <button id="expenseSaveBtn" style="width:100%;margin-top:14px" onclick="saveExpense()">💾 Ausgabe speichern</button>
+    <button class="secondary" style="width:100%;margin-top:8px" onclick="closeExpenseForm()">Abbrechen</button>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <h2 style="margin:0">Ausgaben</h2>
+      <button class="secondary" onclick="openSettlementForm()">↔ Ausgleich</button>
+    </div>
+    <div id="expenseList" style="margin-top:10px"></div>
+  </div>
+
+  <div id="settlementFormCard" class="card hidden">
+    <h2>Ausgleichszahlung</h2>
+    <div class="small" style="margin-bottom:10px">Wenn eine Person einer anderen Geld zurückzahlt.</div>
+    <label>Von</label><select id="settleFrom"></select>
+    <label style="margin-top:10px">An</label><select id="settleTo"></select>
+    <label style="margin-top:10px">Betrag (€)</label><input id="settleAmount" type="number" inputmode="decimal" min="0.01" step="0.01">
+    <button style="width:100%;margin-top:14px" onclick="saveSettlement()">💾 Ausgleich speichern</button>
+    <button class="secondary" style="width:100%;margin-top:8px" onclick="closeSettlementForm()">Abbrechen</button>
+  </div>
+</section>
+
+<section id="appointments" class="hidden">
+<div id="pollApprovalSection" class="card" style="display:none"><div id="pollApprovalContent"></div></div>
+<div id="pollSection" class="card">
+<h2>🗳️ Terminabstimmung</h2>
+<div id="pollContent" class="small">Umfragen werden geladen …</div>
+</div>
+<div class="card">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+    <div><h2 style="margin:0">Nächste Termine</h2><div class="small">Gemeinsame Badminton-Termine für alle.</div>
+</div>
+    <button id="apptNewBtn" onclick="openAppointmentForm()" aria-label="Neuen Termin erstellen" style="font-size:25px;line-height:1;width:48px;height:48px;padding:0;border-radius:50%">＋</button>
+  </div>
+  <button class="secondary" style="width:100%;margin-top:12px" onclick="callBadminton()">☎️ Badminton buchen</button>
+</div>
+
+<div id="apptFormCard" class="card hidden">
+  <h2 id="apptFormTitle">Neuen Termin erstellen</h2>
+  <label>Datum</label><input id="apptDate" type="date">
+  <div class="grid2" style="margin-top:10px">
+    <div><label>Von</label><select id="apptFrom"></select></div>
+    <div><label>Bis</label><select id="apptTo"></select></div>
+  </div>
+  <label class="appt-option">
+    <input id="apptFood" type="checkbox" onchange="updateFoodPlaceVisibility()"> <span>🍽️ Essen danach?</span>
+  </label>
+  <div id="apptFoodPlaceWrap" class="hidden" style="margin-top:10px">
+    <label>Wo essen wir?</label>
+    <input id="apptFoodPlace" type="text" maxlength="80" placeholder="z. B. L'Osteria">
+  </div>
+  <div style="margin-top:14px">
+    <label>👥 Wer ist dabei?</label>
+    <div class="small">Du kannst beim Erstellen oder Bearbeiten direkt Teilnehmer eintragen.</div>
+    <div id="apptParticipants" class="appt-people-grid"></div>
+  </div>
+  <label class="appt-option">
+    <input id="apptBooked" type="checkbox" onchange="updateCourtVisibility()"> <span>✅ Termin gebucht?</span>
+  </label>
+  <div id="apptCourtWrap" class="hidden" style="margin-top:10px">
+    <label>Auf welchem Court spielt ihr?</label>
+    <select id="apptCourt"><option value="">Court auswählen …</option><option value="0">Court unbekannt</option><option value="1">Court 1</option><option value="2">Court 2</option><option value="3">Court 3</option><option value="4">Court 4</option><option value="5">Court 5</option><option value="6">Court 6</option><option value="7">Court 7</option><option value="8">Court 8</option><option value="9">Court 9</option><option value="10">Court 10</option></select>
+  </div>
+  <button id="apptSaveBtn" style="width:100%;margin-top:12px" onclick="saveAppointment()">＋ Termin speichern</button>
+  <button id="apptCancelBtn" class="secondary" style="width:100%;margin-top:8px" onclick="cancelAppointmentEdit()">Abbrechen</button>
+</div>
+
+
+<div id="appointmentList"></div>
+<div style="display:flex;justify-content:center;margin:12px 0"><button class="secondary" style="width:auto;max-width:100%;padding:10px 14px;font-size:13px" onclick="shareAllAppointments()">Alle Termine inkl. Teilnehmer teilen</button></div>
+<button id="historyToggleBtn" class="secondary" style="width:100%;margin:10px 0" onclick="toggleAppointmentHistory()">🕘 Vergangene Termine anzeigen</button>
+<div id="appointmentHistory" class="hidden"></div>
+
+</div>
+</section>
+
+
+
+
+
+
+<nav><button id="navHome" onclick="show('home')">⌂<br>Start</button><button id="navGames" onclick="show('games')">🏸<br>Spiele</button><button id="navAppointments" onclick="show('appointments')">📅<br>Termine</button><button id="navStats" onclick="openStatsAtTop()">▥<br>Statistik</button><button id="navCash" onclick="show('cash')">💰<br>Kasse</button></nav>
+</div>
+<script>try{localStorage.removeItem("badminton_home_settings")}catch(e){};
+
+const defaults=["Tim","Marco","Daniel","Florian","Karl","Marcel","Martin","Michael"];
+let state={"players":["Tim","Marco","Daniel","Florian","Karl","Marcel","Martin","Michael"],"days":[],"appointments":[]};
+let currentDay=null;
+const today=()=>localISODate(new Date()), pair=(a,b)=>[a,b].sort().join("|");
+document.getElementById("date").value=today();
+document.getElementById("homeDate").textContent=new Date().toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric"});
+renderPlayers();renderHome();
+let serverRevision=null;
+let pendingWrites=0;
+let saveQueue=Promise.resolve();
+let lastSyncedState=null;
+function cloneState(v){return JSON.parse(JSON.stringify(v))}
+async function performSafeSave(){
+  pendingWrites++;
+  try{
+    const desired=cloneState(state);
+    let response=await fetch("api.php",{method:"POST",headers:{"Content-Type":"application/json"},cache:"no-store",body:JSON.stringify({action:"save",state:desired,base_revision:serverRevision})});
+    let result=await response.json();
+    if(response.status===403 && result.password_required){
+      const adminPassword=prompt('Admin-Passwort für Änderungen an Kasse oder bisherigen Statistiken:');
+      if(adminPassword===null)return false;
+      response=await fetch("api.php",{method:"POST",headers:{"Content-Type":"application/json"},cache:"no-store",body:JSON.stringify({action:"save",state:desired,base_revision:serverRevision,admin_password:adminPassword})});
+      result=await response.json();
+    }
+    if(response.status===409 && result.conflict){
+      alert("⚠️ Jemand anderes hat inzwischen Daten gespeichert. Deine Änderung wurde NICHT überschrieben. Bitte aktualisiere die App und trage deine letzte Änderung erneut ein.");
+      return false;
+    }
+    if(!result.ok)throw new Error(result.error||"Speichern fehlgeschlagen");
+    serverRevision=result.revision||serverRevision;
+    lastSyncedState=desired;
+    return true;
+  }catch(error){
+    console.error(error);
+    alert("Speichern auf dem Server fehlgeschlagen: "+(error.message||"Bitte Internetverbindung prüfen."));
+    return false;
+  }finally{pendingWrites--}
+}
+function save(){
+  const job=saveQueue.then(performSafeSave);
+  saveQueue=job.catch(()=>false);
+  return job;
+}
+async function syncReadOnly(){
+  if(pendingWrites||document.hidden)return;
+  // Während einer Eingabe keine Formularfelder verändern.
+  if(document.querySelector('#apptFormCard:not(.hidden),#expenseFormCard:not(.hidden),#livePlayersEditor:not(.hidden)'))return;
+  try{
+    const response=await fetch("api.php?action=load",{cache:"no-store"});
+    const result=await response.json();
+    if(!result.ok||!result.state||!result.revision||result.revision===serverRevision)return;
+    // Niemals ungespeicherte lokale Änderungen durch einen Abruf überschreiben.
+    if(lastSyncedState&&JSON.stringify(state)!==JSON.stringify(lastSyncedState))return;
+    state=result.state;
+    serverRevision=result.revision;
+    lastSyncedState=cloneState(state);
+    if(currentDay){
+      currentDay=(state.days||[]).find(d=>d.id===currentDay.id)||null;
+      if(currentDay?.archived===true)currentDay=null;
+    }
+    renderHome();renderCashHome();
+    if(!document.getElementById('games').classList.contains('hidden'))renderGames();
+    if(!document.getElementById('cash').classList.contains('hidden'))renderCash();
+    if(!document.getElementById('appointments').classList.contains('hidden'))renderAppointments();
+    if(!document.getElementById('stats').classList.contains('hidden')){renderStats(activeStatsRange);renderDayManager()}
+  }catch(error){console.warn('Synchronisierung nicht möglich',error)}
+}
+async function manualSave(){
+  if(!currentDay)return;
+  const el=document.getElementById("saveStatus");
+  if(el) el.textContent="Speichere …";
+  // Erst beim bewussten Speichern ist der komplette Spieltag abgeschlossen.
+  currentDay.archived=true;
+  currentDay.archivedAt=new Date().toISOString();
+  const idx=state.days.findIndex(d=>d.id===currentDay.id);
+  if(idx>=0)state.days[idx]=currentDay;
+  const ok=await save();
+  if(!ok){ currentDay.archived=false; if(el)el.textContent="Speichern fehlgeschlagen"; return; }
+  if(el) el.textContent="✓ Spieltag gespeichert";
+  currentDay=null;
+  closeManualRoundForm();
+  gameList.innerHTML="";
+  document.getElementById("parallelGames").innerHTML="";
+  setTimeout(()=>{
+    show("stats");renderStats("day");renderDayManager();window.scrollTo({top:0,behavior:"smooth"});
+  },250);
+}
+async function deleteStats(){
+  if(!confirm("Wirklich ALLE bisherigen Spieltage, Ergebnisse und Statistiken löschen? Die Spielernamen bleiben erhalten.")) return;
+  state.days=[];
+  currentDay=null;
+  const ok=await save();
+  renderHome();
+  renderStats("all");
+  if(ok){alert("Alle Spieltage und Statistiken wurden gelöscht.");show("home")}
+}
+function openStatsAtTop(){
+ show('stats');
+ renderStats('all');
+ window.scrollTo(0,0);
+ requestAnimationFrame(()=>window.scrollTo(0,0));
+}
+function show(id){["home","setup","manage","games","appointments","stats","cash"].forEach(x=>document.getElementById(x).classList.toggle("hidden",x!==id));["navHome","navGames","navAppointments","navStats","navCash"].forEach(x=>document.getElementById(x).classList.remove("active"));if(id==="home"){navHome.classList.add("active");renderHome();}if(id==="games"){navGames.classList.add("active");renderGames()}if(id==="appointments"){navAppointments.classList.add("active");renderAppointments();loadPolls()}if(id==="cash"){navCash.classList.add("active");renderCash()}if(id==="stats"){navStats.classList.add("active");renderStats(activeStatsRange);renderDayManager()}if(id==="setup"){renderPlayers();selectPlayersForDate()}if(id==="manage")renderNames();
+ // Bei jedem Bereichswechsel oben beginnen, insbesondere bei Statistik.
+ window.scrollTo({top:0,left:0,behavior:"instant"});
+ requestAnimationFrame(()=>window.scrollTo(0,0));
+}
+function renderPlayers(){players.innerHTML=state.players.map((p,i)=>`<label class="player"><span>${p}</span><input class="present" type="checkbox" data-i="${i}"></label>`).join("")}
+function selectPlayersForDate(){
+ const d=document.getElementById("date")?.value||today();
+ const a=(state.appointments||[]).filter(x=>x.date===d).sort((x,y)=>(x.from||"").localeCompare(y.from||""))[0];
+ const signed=a&&Array.isArray(a.participants)?a.participants:[];
+ document.querySelectorAll(".present").forEach(cb=>cb.checked=signed.includes(state.players[+cb.dataset.i]));
+}
+function renderNames(){
+ nameInputs.innerHTML=state.players.map((p,i)=>nameRowHtml(p,i)).join("");
+}
+function nameRowHtml(p,i){
+ return `<div class="nameRow"><input type="text" id="name${i}" value="${String(p||"").replace(/"/g,"&quot;")}" maxlength="30" placeholder="Name"><button class="danger" onclick="removeNameField(this)">Löschen</button></div>`;
+}
+function addNameField(){
+ const i=document.querySelectorAll("#nameInputs .nameRow").length;
+ nameInputs.insertAdjacentHTML("beforeend",nameRowHtml("",i));
+ const inputs=nameInputs.querySelectorAll("input");
+ inputs[inputs.length-1]?.focus();
+}
+function removeNameField(btn){
+ btn.closest(".nameRow")?.remove();
+}
+
+async function loadServerState(){
+  try{
+    const response=await fetch("api.php?action=load",{cache:"no-store"});
+    const result=await response.json();
+    if(!result.ok)throw new Error(result.error||"Laden fehlgeschlagen");
+    if(result.state)state=result.state;
+    serverRevision=result.revision||null;
+    if(!Array.isArray(state.appointments))state.appointments=[];
+    if(!Array.isArray(state.cashEntries))state.cashEntries=[];
+    if(!state.cashOpeningBalances)state.cashOpeningBalances={"Marco":-21.32,"Marcel":-18.71,"Michael":-28.94,"Martin":9.62,"Tim":45.97,"Daniel":2.32,"Florian":2.62,"Karl":8.44};
+    lastSyncedState=cloneState(state);
+  }catch(error){console.error("Laden vom Server fehlgeschlagen:",error)}
+}
+async function saveNames(){
+ const names=[...document.querySelectorAll("#nameInputs input")].map(x=>x.value.trim()).filter(Boolean);
+ if(names.length<2){alert("Bitte mindestens zwei Namen behalten.");return}
+ const lower=names.map(x=>x.toLocaleLowerCase("de-DE"));
+ if(new Set(lower).size!==names.length){alert("Jeder Spielername darf nur einmal vorkommen.");return}
+ state.players=names;
+ const ok=await save();
+ if(ok){renderPlayers();renderNames();fillCashSelects();renderPersonalHome();show("setup")}
+}
+function combos(arr,k){let out=[];function rec(s,a){if(a.length===k){out.push([...a]);return}for(let i=s;i<arr.length;i++)rec(i+1,[...a,arr[i]])}rec(0,[]);return out}
+
+let editingExpenseId=null;
+
+function localISODate(d=new Date()){
+ const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");
+ return `${y}-${m}-${day}`;
+}
+function formatCashDate(v){
+ if(!v)return "";
+ const d=new Date(v+"T12:00:00");
+ return d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"});
+}
+
+
+function money(v){return Number(v||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €"}
+function cashPlayers(){return (state.players||[]).filter(Boolean)}
+function cashBalances(){
+ const b={}; cashPlayers().forEach(p=>b[p]=0);
+ const opening=state.cashOpeningBalances||{};
+ Object.entries(opening).forEach(([p,v])=>{if(p in b)b[p]+=Number(v)||0});
+ (state.cashEntries||[]).forEach(e=>{
+   const amount=Number(e.amount)||0;
+   if(e.type==="expense"){
+     const people=(e.participants||[]).filter(p=>p in b);
+     if(!people.length || !(e.payer in b)) return;
+     b[e.payer]+=amount;
+     const share=amount/people.length;
+     people.forEach(p=>b[p]-=share);
+   }else if(e.type==="settlement"){
+     if(e.from in b)b[e.from]+=amount;
+     if(e.to in b)b[e.to]-=amount;
+   }
+ });
+ return b;
+}
+function renderCashHome(){
+ const box=document.getElementById("cashHomeCard");
+ if(box)box.remove();
+}
+function fillCashSelects(){
+ const names=cashPlayers();
+ ["expensePayer","settleFrom","settleTo"].forEach(id=>{
+   const el=document.getElementById(id);if(!el)return;
+   const old=el.value;el.innerHTML=names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join("");
+   if(names.includes(old))el.value=old;
+ });
+ const grid=document.getElementById("expenseParticipants");if(grid){
+   grid.innerHTML=names.map(n=>`<label class="cash-person"><input type="checkbox" value="${esc(n)}"><span>${esc(n)}</span></label>`).join("");
+ }
+}
+function updateExpenseCategory(){
+ const wrap=document.getElementById("expenseOtherWrap"),cat=document.getElementById("expenseCategory"),other=document.getElementById("expenseOther");
+ if(!wrap||!cat)return;
+ wrap.classList.toggle("hidden",cat.value!=="Sonstiges");
+ if(cat.value!=="Sonstiges"&&other)other.value="";
+}
+function cashPlayersForDate(d){
+ const appt=(state.appointments||[]).filter(a=>a.date===d).sort((a,b)=>(a.from||"").localeCompare(b.from||""))[0];
+ let names=appt&&Array.isArray(appt.participants)?[...appt.participants]:[];
+ const day=(state.days||[]).filter(x=>x.date===d).sort((a,b)=>(b.id||0)-(a.id||0))[0];
+ if(day)names=Array.isArray(day.activePlayers)?[...day.activePlayers]:(Array.isArray(day.players)?[...day.players]:names);
+ return [...new Set(names)].filter(n=>cashPlayers().includes(n));
+}
+function suggestedPayerForDate(d){
+ const names=cashPlayersForDate(d),balances=cashBalances();
+ // Von den tatsächlich Beteiligten zahlt immer die Person mit dem niedrigsten Kontostand.
+ // Dadurch gibt es auch dann einen Zahler, wenn alle im Plus sind.
+ const ranked=names.map(n=>[n,Number(balances[n]||0)]).sort((a,b)=>a[1]-b[1]);
+ return (ranked[0]||[])[0]||"";
+}
+function badmintonPriceSuggestion(d){
+ const a=(state.appointments||[]).filter(x=>x.date===d).sort((x,y)=>(x.from||"").localeCompare(y.from||""))[0];
+ if(!a||!a.from||!a.to)return null;
+ const toMin=t=>{const [h,m]=String(t).split(":").map(Number);return h*60+m};
+ const start=toMin(a.from),end=toMin(a.to);
+ if(!Number.isFinite(start)||!Number.isFinite(end)||end<=start)return null;
+ const weekday=new Date(d+"T12:00:00").getDay();
+ let normal=0;
+ if(weekday===6) normal=(end-start)/60*15;
+ else if(weekday===0) normal=(end-start)/60*20;
+ else{
+   const split=17*60;
+   const cheap=Math.max(0,Math.min(end,split)-start);
+   const peak=Math.max(0,end-Math.max(start,split));
+   normal=cheap/60*15+peak/60*20;
+ }
+ normal=Math.round(normal*100)/100;
+ const count=Array.isArray(a.participants)?a.participants.length:0;
+ const special=(weekday===5&&start>=19*60&&count>0)?count*5:null;
+ return {normal,special};
+}
+function prefillExpenseForDate(){
+ if(editingExpenseId)return;
+ const d=expenseDate.value||localISODate(),names=cashPlayersForDate(d),payer=suggestedPayerForDate(d);
+ if(payer)expensePayer.value=payer;
+ [...expenseParticipants.querySelectorAll("input")].forEach(x=>x.checked=names.includes(x.value));
+
+ const hint=document.getElementById("expensePriceHint");
+ if(hint)hint.textContent="";
+ if((expenseCategory?.value||"Badminton")==="Badminton"){
+   const price=badmintonPriceSuggestion(d);
+   if(price&&expenseAmount){
+     expenseAmount.value=price.normal.toFixed(2);
+     if(hint){
+       hint.textContent=price.special!==null
+         ? `Automatisch: ${price.normal.toFixed(2).replace(".",",")} € · Freitags-Special möglich: ${price.special.toFixed(2).replace(".",",")} € gesamt`
+         : `Automatisch aus Terminzeit berechnet`;
+     }
+   }
+ }
+}
+function openExpenseForm(id=null){
+ fillCashSelects(); editingExpenseId=id;
+ expenseFormTitle.textContent=id?"Ausgabe bearbeiten":"Neue Ausgabe";
+ expenseSaveBtn.textContent=id?"💾 Änderung speichern":"💾 Ausgabe speichern";
+ if(id){
+   const e=(state.cashEntries||[]).find(x=>x.id===id&&x.type==="expense");if(!e)return;
+   expenseDate.value=e.expenseDate || (e.date ? localISODate(new Date(e.date)) : localISODate());expenseAmount.value=Number(e.amount).toFixed(2);expensePayer.value=e.payer;
+   expenseCategory.value=e.category||"Badminton";expenseOther.value=e.otherCategory||"";updateExpenseCategory();
+   [...expenseParticipants.querySelectorAll("input")].forEach(x=>x.checked=(e.participants||[]).includes(x.value));
+ }else{
+   expenseDate.value=localISODate();expenseAmount.value="";expenseCategory.value="Badminton";expenseOther.value="";updateExpenseCategory();
+   [...expenseParticipants.querySelectorAll("input")].forEach(x=>x.checked=false);
+   prefillExpenseForDate();
+ }
+ expenseFormCard.classList.remove("hidden");expenseFormCard.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function closeExpenseForm(){editingExpenseId=null;expenseFormCard.classList.add("hidden")}
+async function saveExpense(){
+ const expenseDateValue=expenseDate.value, amount=parseFloat(String(expenseAmount.value).replace(",",".")), payer=expensePayer.value;
+ const category=expenseCategory.value||"Badminton", otherCategory=(expenseOther.value||"").trim();
+ const participants=[...expenseParticipants.querySelectorAll("input:checked")].map(x=>x.value);
+ if(!expenseDateValue){alert("Bitte ein Datum auswählen.");return}
+ if(!(amount>0)){alert("Bitte einen gültigen Betrag eingeben.");return}
+ if(!payer||!participants.length){alert("Bitte Zahler und mindestens eine beteiligte Person auswählen.");return}
+ if(category==="Sonstiges"&&!otherCategory){alert("Bitte trage ein, was unter Sonstiges gemeint ist.");return}
+ state.cashEntries??=[];
+ if(editingExpenseId){
+   const e=state.cashEntries.find(x=>x.id===editingExpenseId);Object.assign(e,{expenseDate:expenseDateValue,text:formatCashDate(expenseDateValue),amount,payer,participants,category,otherCategory:category==="Sonstiges"?otherCategory:""});
+ }else state.cashEntries.push({id:Date.now(),type:"expense",expenseDate:expenseDateValue,text:formatCashDate(expenseDateValue),amount,payer,participants,category,otherCategory:category==="Sonstiges"?otherCategory:"",date:new Date().toISOString()});
+ const ok=await save();if(ok){closeExpenseForm();renderCash();renderCashHome()}
+}
+async function deleteCashEntry(id){
+ if(!confirm("Diesen Eintrag wirklich löschen?"))return;
+ state.cashEntries=(state.cashEntries||[]).filter(e=>e.id!==id);await save();renderCash();renderCashHome();
+}
+function openSettlementForm(){
+ fillCashSelects();settleAmount.value="";
+ const me=getMe(); if(me && cashPlayers().includes(me))settleFrom.value=me;
+ settlementFormCard.classList.remove("hidden");
+ settlementFormCard.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function closeSettlementForm(){settlementFormCard.classList.add("hidden")}
+async function saveSettlement(){
+ const from=settleFrom.value,to=settleTo.value,amount=parseFloat(String(settleAmount.value).replace(",","."));
+ if(from===to){alert("Von und An müssen unterschiedliche Personen sein.");return}
+ if(!(amount>0)){alert("Bitte einen gültigen Betrag eingeben.");return}
+ state.cashEntries??=[];state.cashEntries.push({id:Date.now(),type:"settlement",from,to,amount,date:new Date().toISOString()});
+ const ok=await save();if(ok){closeSettlementForm();renderCash();renderCashHome()}
+}
+
+function calculateCashDebts(){
+ const balances=cashBalances();
+ const debtors=Object.entries(balances)
+   .filter(([,v])=>v<-.005)
+   .map(([name,v])=>({name,amount:-v}))
+   .sort((a,b)=>b.amount-a.amount);
+ const creditors=Object.entries(balances)
+   .filter(([,v])=>v>.005)
+   .map(([name,v])=>({name,amount:v}))
+   .sort((a,b)=>b.amount-a.amount);
+ const result=[];
+ let i=0,j=0;
+ while(i<debtors.length && j<creditors.length){
+   const amount=Math.min(debtors[i].amount,creditors[j].amount);
+   if(amount>.005) result.push({from:debtors[i].name,to:creditors[j].name,amount});
+   debtors[i].amount-=amount;creditors[j].amount-=amount;
+   if(debtors[i].amount<.005)i++;
+   if(creditors[j].amount<.005)j++;
+ }
+ return result;
+}
+function renderCash(){
+ state.cashEntries??=[];fillCashSelects();
+ const b=cashBalances(), bal=document.getElementById("cashBalances");
+ if(bal){
+   const rows=Object.entries(b).sort((a,b)=>a[1]-b[1]);
+   bal.innerHTML='<div class="card"><h2 style="margin-top:0">Kontostände</h2>'+
+     rows.map(([n,v])=>`<div class="cash-balance"><strong>${esc(n)}</strong><span class="${v<-.005?"cash-minus":v>.005?"cash-plus":"cash-zero"}">${v>0?"+":""}${money(v)}</span></div>`).join("")+'</div>';
+ }
+ const debts=document.getElementById("cashDebts");
+ if(debts){
+   const rows=calculateCashDebts();
+   debts.innerHTML=rows.length
+     ? rows.map(d=>`<div class="cash-debt-row"><span><strong>${esc(d.from)}</strong> → ${esc(d.to)}</span><strong>${money(d.amount)}</strong></div>`).join("")
+     : '<div class="small">Alles ausgeglichen. 🎉</div>';
+ }
+ const list=document.getElementById("expenseList");if(!list)return;
+ const entries=[...state.cashEntries].sort((a,b)=>(b.id||0)-(a.id||0));
+ if(!entries.length){list.innerHTML='<div class="small">Noch keine Ausgaben eingetragen.</div>';return}
+ list.innerHTML=entries.map(e=>{
+   if(e.type==="settlement")return `<div class="cash-entry"><strong>↔ ${esc(e.from)} → ${esc(e.to)}</strong><div>${money(e.amount)}</div><div class="cash-actions"><button class="danger" onclick="deleteCashEntry(${e.id})">🗑 Löschen</button></div></div>`;
+   return `<div class="cash-entry"><strong>📅 ${esc(e.expenseDate ? formatCashDate(e.expenseDate) : (e.text||"Ausgabe"))}</strong><div class="small" style="margin:3px 0 2px">${e.category==="Essen"?"🍽️ Essen":e.category==="Sonstiges"?`📦 ${esc(e.otherCategory||"Sonstiges")}`:"🏸 Badminton"}</div><div>${money(e.amount)} · bezahlt von ${esc(e.payer)}</div><div class="small">geteilt durch ${(e.participants||[]).map(esc).join(", ")}</div><div class="cash-actions"><button class="secondary" onclick="openExpenseForm(${e.id})">✏️ Bearbeiten</button><button class="danger" onclick="deleteCashEntry(${e.id})">🗑 Löschen</button></div></div>`;
+ }).join("");
+}
+
+let editingAppointmentId=null;
+const APPT_LOCATION="World of Sports, Gahlingspfad 14, 47803 Krefeld";
+const APPT_PHONE="+492151801818";
+
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+
+function fillAppointmentTimes(){
+ const from=document.getElementById("apptFrom"), to=document.getElementById("apptTo");
+ if(!from||!to||from.options.length)return;
+ for(let h=0;h<24;h++) for(const m of ["00","30"]){
+   const v=String(h).padStart(2,"0")+":"+m;
+   from.add(new Option(v+" Uhr",v)); to.add(new Option(v+" Uhr",v));
+ }
+ from.value="18:00"; to.value="20:00";
+}
+
+function openAppointmentForm(){
+ editingAppointmentId=null;renderAppointmentParticipantPicker([]);
+ apptFormTitle.textContent="Neuen Termin erstellen";
+ apptSaveBtn.textContent="＋ Termin speichern";
+ apptDate.value=today();
+ apptFrom.value="18:00"; apptTo.value="20:00"; apptFood.checked=false; apptBooked.checked=false; document.getElementById("apptFoodPlace").value=""; document.getElementById("apptCourt").value=""; updateFoodPlaceVisibility(); updateCourtVisibility();
+ apptFormCard.classList.remove("hidden");
+ apptFormCard.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function updateFoodPlaceVisibility(){
+ const wrap=document.getElementById("apptFoodPlaceWrap");
+ if(!wrap)return;
+ wrap.classList.toggle("hidden",!apptFood.checked);
+}
+function updateCourtVisibility(){
+ const wrap=document.getElementById("apptCourtWrap");
+ if(!wrap)return;
+ wrap.classList.toggle("hidden",!apptBooked.checked);
+ if(!apptBooked.checked) document.getElementById("apptCourt").value="";
+}
+function renderAppointmentParticipantPicker(selected=[]){
+ const box=document.getElementById("apptParticipants");if(!box)return;
+ const set=new Set(selected||[]);
+ box.innerHTML=(state.players||[]).map(n=>`<label class="appt-person"><span>${esc(n)}</span><input class="appt-participant-check" type="checkbox" value="${esc(n)}" ${set.has(n)?"checked":""}></label>`).join("");
+}
+function appointmentSelectedPeople(){
+ return [...document.querySelectorAll(".appt-participant-check:checked")].map(x=>x.value);
+}
+async function setAppointmentRsvp(id,yes){
+ const me=getMe();
+ if(!me){alert("Bitte wähle zuerst auf der Startseite unter „Wer bist du?“ deinen Namen aus.");return}
+ const a=(state.appointments||[]).find(x=>x.id===id);if(!a)return;
+ a.participants=Array.isArray(a.participants)?a.participants:[];
+ a.declined=Array.isArray(a.declined)?a.declined:[];
+ const wasYes=a.participants.includes(me);
+ a.participants=a.participants.filter(n=>n!==me);
+ a.declined=a.declined.filter(n=>n!==me);
+ if(yes&&!wasYes)a.participants.push(me);else if(!yes)a.declined.push(me);
+ const ok=await save();if(ok){renderAppointments();renderHome();}
+}
+async function saveAppointment(){
+ const d=apptDate.value, f=apptFrom.value, t=apptTo.value, food=apptFood.checked, booked=apptBooked.checked, court=(document.getElementById("apptCourt")?.value||""), foodPlace=(document.getElementById("apptFoodPlace")?.value||"").trim(), participants=appointmentSelectedPeople();
+ if(!d||!f||!t){alert("Bitte Datum, Von und Bis ausfüllen.");return}
+ const appointmentStart=new Date(d+"T"+f);
+ const appointmentEnd=new Date(d+"T"+t);
+ // Neue Termine dürfen nicht in der Vergangenheit beginnen.
+ // Bei einem bereits laufenden Termin darf die Endzeit aber noch verlängert werden.
+ if(!editingAppointmentId && appointmentStart < new Date()){alert("Der Termin kann nicht gespeichert werden, weil die Startzeit bereits in der Vergangenheit liegt. Bitte wähle eine zukünftige Startzeit.");return}
+ if(editingAppointmentId && appointmentEnd <= new Date()){alert("Dieser Termin ist bereits beendet und kann nicht mehr geändert werden.");return}
+ if(t<=f){alert("Die Endzeit muss nach der Startzeit liegen.");return}
+ if(booked&&!court){alert("Bitte wähle den gebuchten Court aus.");return}
+ state.appointments??=[];
+ if(editingAppointmentId){
+   const a=state.appointments.find(x=>x.id===editingAppointmentId);
+   if(a){a.date=d;a.from=f;a.to=t;a.food=food;a.booked=booked;a.court=booked?court:"";a.foodPlace=food?foodPlace:"";a.participants=participants;a.declined=(a.declined||[]).filter(n=>!participants.includes(n))}
+ }else state.appointments.push({id:Date.now(),date:d,from:f,to:t,food,booked,court:booked?court:"",foodPlace:food?foodPlace:"",participants,declined:[]});
+ state.appointments.sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from));
+ const ok=await save();
+ if(ok){cancelAppointmentEdit();renderAppointments();renderHome()}
+}
+
+let appointmentHistoryVisible=false;
+function appointmentShareText(a){
+ const date=new Date(a.date+"T12:00").toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric"});
+ const people=Array.isArray(a.participants)?a.participants:[];
+ const lines=[
+  date,
+  (a.from||"–")+"–"+(a.to||"–")+" Uhr",
+  "Dabei: "+(people.length?people.join(", "):"Noch keine Zusagen")
+ ];
+ if(a.food)lines.push("Essen danach"+(a.foodPlace?" bei "+a.foodPlace:""));
+ return lines.join("\n");
+}
+async function sendAppointmentToWhatsApp(message){
+ // Native iOS share sheet offers WhatsApp when installed.
+ if(navigator.share){
+  try{await navigator.share({text:message});return}
+  catch(e){if(e&&e.name==="AbortError")return}
+ }
+ // Direct WhatsApp fallback on browsers without Web Share support.
+ window.open("https://api.whatsapp.com/send?text="+encodeURIComponent(message),"_blank","noopener");
+}
+function shareSingleAppointment(id){
+ const a=(state.appointments||[]).find(x=>String(x.id)===String(id));
+ if(a)sendAppointmentToWhatsApp("Badminton-Termin\n\n"+appointmentShareText(a));
+}
+function shareAllAppointments(){
+ const now=new Date();
+ const future=(state.appointments||[]).filter(a=>new Date(a.date+"T"+a.to)>=now).sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from));
+ if(!future.length){alert("Es sind keine kommenden Termine zum Teilen vorhanden.");return}
+ const message="Unsere nächsten Termine:\n\n"+future.map(appointmentShareText).join("\n\n");
+ sendAppointmentToWhatsApp(message);
+}
+function appointmentCardHtml(a){
+ const title=a.food ? "Badminton + Essen gehen" : "Badminton";
+ const participants=Array.isArray(a.participants)?a.participants:[];
+ const declined=Array.isArray(a.declined)?a.declined:[];
+ const me=getMe(),myYes=me&&participants.includes(me),myNo=me&&declined.includes(me);
+ return `<div class="card" id="appointment-${a.id}">
+   <div class="matchhead" style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span>${new Date(a.date+"T12:00").toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric"})}</span><button class="secondary" type="button" onclick="shareSingleAppointment(${a.id})" title="Diesen Termin teilen" aria-label="Diesen Termin teilen" style="width:34px;height:34px;min-width:34px;padding:6px;display:inline-flex;align-items:center;justify-content:center;border-radius:9px"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3m0 0 4.5 4.5M12 3 7.5 7.5"/><path d="M5 12v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button></div>
+   <h2 style="margin:5px 0">🏸 ${esc(title)}</h2>
+   <div>${esc(a.from)}–${esc(a.to)} Uhr</div>
+   <div class="appt-badges">
+     ${a.food?'<span class="appt-badge">🍽️ Essen danach</span>':''}${a.food&&a.foodPlace?`<span class="appt-badge">📍 ${esc(a.foodPlace)}</span>`:''}
+     <label class="appt-badge" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px"><input type="checkbox" ${a.booked?'checked':''} onchange="quickToggleBooked(${a.id},this)" style="width:18px;height:18px"> ${a.booked?'Termin gebucht':'Noch nicht gebucht'}</label>${a.booked&&a.court?`<span class="appt-badge">🎯 ${String(a.court)==="0"?"Court unbekannt":"Court "+esc(a.court)}</span>`:''}
+   </div>
+   <div class="small" style="margin-top:9px">📍 ${esc(APPT_LOCATION)}</div>
+   <div class="rsvp-summary"><strong>👥 Dabei (${participants.length})</strong><div class="small" style="margin-top:4px">${participants.length?participants.map(esc).join(", "):"Noch niemand zugesagt."}</div></div>
+   <div class="rsvp-actions" style="display:block"><button class="${myYes?"rsvp-yes":"secondary"} appt-dabei-btn" onclick="setAppointmentRsvp(${a.id},true)">✅ ${myYes?"Du bist dabei":"Dabei"}</button></div>
+   <div class="calendar-choice">
+     <button class="google-cal-btn" onclick="googleCalendarAppointment(${a.id})"><span class="google-calendar-logo" aria-hidden="true"><span>31</span></span><span>Google Kalender</span></button>
+     <button class="apple-cal-btn" onclick="appleCalendarAppointment(${a.id})"><span class="apple-calendar-logo" aria-hidden="true"><span class="apple-cal-day">FR</span><span class="apple-cal-date">25</span></span><span>iPhone Kalender</span></button>
+   </div>
+   <div class="appt-small-actions"><button class="secondary" onclick="editAppointment(${a.id})">✏️ Bearbeiten</button><button class="danger" onclick="deleteAppointment(${a.id})">🗑 Löschen</button></div>
+ </div>`;
+}
+async function quickToggleBooked(id, checkbox){
+ const a=(state.appointments||[]).find(x=>x.id===id);if(!a)return;
+ const previous=!!a.booked;
+ if(checkbox.checked && !a.court){
+   const value=prompt('Welchen Court habt ihr gebucht? Bitte Court 0 bis 10 eingeben (0 = unbekannt):', '1');
+   if(value===null){checkbox.checked=previous;return}
+   const court=Number(value.trim());
+   if(!value.trim()||!Number.isInteger(court)||court<0||court>10){alert('Bitte eine Courtnummer von 0 bis 10 eingeben.');checkbox.checked=previous;return}
+   a.court=String(court);
+ }
+ a.booked=checkbox.checked;
+ if(!a.booked)a.court='';
+ checkbox.disabled=true;
+ const ok=await save();
+ if(!ok){a.booked=previous;checkbox.checked=previous;alert('Die Änderung wurde nicht gespeichert. Bitte Seite aktualisieren.');}
+ renderAppointments();renderHome();
+}
+function toggleAppointmentHistory(){appointmentHistoryVisible=!appointmentHistoryVisible;renderAppointments()}
+function renderAppointments(){
+ const list=document.getElementById("appointmentList"),history=document.getElementById("appointmentHistory"),btn=document.getElementById("historyToggleBtn"); if(!list)return;
+ state.appointments??=[]; const now=new Date();
+ const future=state.appointments.filter(a=>new Date(a.date+"T"+a.to)>=now).sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from));
+ const past=state.appointments.filter(a=>new Date(a.date+"T"+a.to)<now).sort((a,b)=>(b.date+b.from).localeCompare(a.date+a.from));
+ list.innerHTML=future.length?future.map(appointmentCardHtml).join(""):'<div class="card"><div class="notice">Noch keine kommenden Termine eingetragen. Tippe oben auf ＋.</div></div>';
+ if(btn){btn.classList.toggle("hidden",!past.length);btn.textContent=appointmentHistoryVisible?"🕘 Vergangene Termine ausblenden":`🕘 Vergangene Termine anzeigen (${past.length})`}
+ if(history){history.classList.toggle("hidden",!appointmentHistoryVisible);history.innerHTML=appointmentHistoryVisible?(past.length?'<div class="small history-heading">Vergangene Termine</div>'+past.map(appointmentCardHtml).join(""):''):''}
+}
+
+function callBadminton(){
+ window.location.href="tel:"+APPT_PHONE;
+}
+
+function editAppointment(id){
+ const a=state.appointments.find(x=>x.id===id);if(!a)return;
+ editingAppointmentId=id;
+ apptFormTitle.textContent="Termin bearbeiten";
+ apptDate.value=a.date;apptFrom.value=a.from;apptTo.value=a.to;apptFood.checked=!!a.food;apptBooked.checked=!!a.booked;document.getElementById("apptFoodPlace").value=a.foodPlace||"";document.getElementById("apptCourt").value=a.court||"";renderAppointmentParticipantPicker(a.participants||[]);updateFoodPlaceVisibility();updateCourtVisibility();
+ apptSaveBtn.textContent="💾 Änderung speichern";
+ apptFormCard.classList.remove("hidden");
+ apptFormCard.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function cancelAppointmentEdit(){
+ editingAppointmentId=null;
+ apptFormCard.classList.add("hidden");
+ apptFood.checked=false;apptBooked.checked=false;document.getElementById("apptCourt").value="";renderAppointmentParticipantPicker([]);updateCourtVisibility();document.getElementById("apptFoodPlace").value="";updateFoodPlaceVisibility();
+}
+
+async function deleteAppointment(id){
+ const a=state.appointments.find(x=>x.id===id);if(!a)return;
+ if(!confirm("Diesen Termin wirklich löschen?"))return;
+ state.appointments=state.appointments.filter(x=>x.id!==id);await save();renderAppointments();
+}
+
+function icsEscape(s){return String(s).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\n/g,"\\n")}
+
+function calendarCompact(date,time){
+ return date.replace(/-/g,"")+"T"+time.replace(":","")+"00";
+}
+function googleCalendarUrl(a,kind="badminton"){
+ const isFood=kind==="food";
+ let startDate=a.date,startTime=a.from,endDate=a.date,endTime=a.to;
+ let title="Badminton",location=APPT_LOCATION,details="";
+ if(isFood){
+   const d=new Date(a.date+"T"+a.to+":00");d.setMinutes(d.getMinutes()+15);
+   const e=new Date(d);e.setMinutes(e.getMinutes()+90);
+   const pad=n=>String(n).padStart(2,"0");
+   startDate=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+   startTime=`${pad(d.getHours())}:${pad(d.getMinutes())}`;
+   endDate=`${e.getFullYear()}-${pad(e.getMonth()+1)}-${pad(e.getDate())}`;
+   endTime=`${pad(e.getHours())}:${pad(e.getMinutes())}`;
+   title=a.foodPlace?"Essen – "+a.foodPlace:"Essen gehen";
+   location=a.foodPlace||"";
+   details="Essen nach dem Badminton";
+ }else{
+   if(a.booked&&a.court)details="Court "+a.court;
+ }
+ const params=new URLSearchParams({
+   action:"TEMPLATE",text:title,
+   dates:calendarCompact(startDate,startTime)+"/"+calendarCompact(endDate,endTime),
+   ctz:"Europe/Berlin",location,details
+ });
+ return "https://calendar.google.com/calendar/render?"+params.toString();
+}
+function googleCalendarAppointment(id){
+ const a=state.appointments.find(x=>x.id===id);if(!a)return;
+ if(a.food){
+   // Google kann über einen Link nur einen neuen Termin gleichzeitig öffnen.
+   // Deshalb Auswahl für Badminton oder Essen anbieten.
+   showGoogleCalendarChoice(a);
+ }else{
+   window.location.href=googleCalendarUrl(a,"badminton");
+ }
+}
+function showGoogleCalendarChoice(a){
+ let old=document.getElementById("googleCalendarChoice");if(old)old.remove();
+ const box=document.createElement("div");box.id="googleCalendarChoice";box.className="calendar-modal";
+ box.innerHTML=`<div class="calendar-modal-card">
+   <h3>📅 Zwei Termine speichern</h3>
+   <div class="small" style="margin-bottom:12px">Google Kalender legt die beiden Termine nacheinander an.</div>
+   <button onclick="openGooglePart(${a.id},'badminton')">🏸 1. Badminton eintragen</button>
+   <button onclick="openGooglePart(${a.id},'food')" style="margin-top:8px">🍽️ 2. Essen eintragen</button>
+   <button class="secondary" onclick="document.getElementById('googleCalendarChoice').remove()" style="margin-top:8px">Schließen</button>
+ </div>`;
+ document.body.appendChild(box);
+}
+function openGooglePart(id,kind){
+ const a=state.appointments.find(x=>x.id===id);if(!a)return;
+ window.open(googleCalendarUrl(a,kind),"_blank");
+}
+
+function appleCalendarAppointment(id){
+ const a=state.appointments.find(x=>x.id===id);if(!a)return;
+ const addMinutes=(date,time,mins)=>{
+   const d=new Date(date+"T"+time+":00"); d.setMinutes(d.getMinutes()+mins);
+   const pad=n=>String(n).padStart(2,"0");
+   return {date:`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`,time:`${pad(d.getHours())}:${pad(d.getMinutes())}`};
+ };
+ const events=[];
+ events.push(["BEGIN:VEVENT",
+   "UID:badminton-"+a.id+"@badminton-marco.4lima.de",
+   "DTSTART;TZID=Europe/Berlin:"+calendarCompact(a.date,a.from),
+   "DTEND;TZID=Europe/Berlin:"+calendarCompact(a.date,a.to),
+   "SUMMARY:"+icsEscape("Badminton"),
+   "DESCRIPTION:"+icsEscape("Badminton"+(a.booked&&a.court?" · Court "+a.court:"")),
+   "LOCATION:"+icsEscape(APPT_LOCATION),
+   "END:VEVENT"].join("\r\n"));
+ if(a.food){
+   const fs=addMinutes(a.date,a.to,15),fe=addMinutes(fs.date,fs.time,90),place=(a.foodPlace||"").trim();
+   events.push(["BEGIN:VEVENT",
+     "UID:essen-"+a.id+"@badminton-marco.4lima.de",
+     "DTSTART;TZID=Europe/Berlin:"+calendarCompact(fs.date,fs.time),
+     "DTEND;TZID=Europe/Berlin:"+calendarCompact(fe.date,fe.time),
+     "SUMMARY:"+icsEscape(place?"Essen – "+place:"Essen gehen"),
+     "DESCRIPTION:"+icsEscape(place?"Essen bei "+place:"Essen nach dem Badminton"),
+     ...(place?["LOCATION:"+icsEscape(place)]:[]),
+     "END:VEVENT"].join("\r\n"));
+ }
+ const ics=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Badminton App//DE","CALSCALE:GREGORIAN","METHOD:PUBLISH",...events,"END:VCALENDAR"].join("\r\n");
+ const blob=new Blob([ics],{type:"text/calendar;charset=utf-8"});
+ const url=URL.createObjectURL(blob),link=document.createElement("a");
+ link.href=url;link.download=a.food?"Badminton-und-Essen.ics":"Badminton.ics";
+ document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+
+function makeRound(ps,partnerCounts,opponentCounts,rests,lastRest){
+ if(ps.length===2){const flip=!!(currentDay && currentDay.rounds && currentDay.rounds.length%2);return {teams:flip?[[ps[1]],[ps[0]]]:[[ps[0]],[ps[1]]],rest:[]};}
+ if(ps.length===3){
+   let best=null,bestScore=Infinity;
+   for(const duo of combos(ps,2)){
+     const solo=ps.find(p=>!duo.includes(p));
+     let z=(partnerCounts[pair(...duo)]||0)*100;
+     for(const p of duo)z+=(opponentCounts[pair(p,solo)]||0)*10;
+     z+=Math.random()*.001;
+     if(z<bestScore){bestScore=z;best={teams:[duo,[solo]],rest:[]}}
+   }
+   return best;
+ }
+ // Bei genau vier aktiven Spielern immer denselben fairen Dreier-Zyklus:
+ // AB gegen CD, AC gegen BD, AD gegen BC – danach wieder von vorne.
+ // Keine Zufallsentscheidung beim Gleichstand, damit Runde 4 = Runde 1 ist.
+ if(ps.length===4){
+   const layouts=[
+     [[ps[0],ps[1]],[ps[2],ps[3]]],
+     [[ps[0],ps[2]],[ps[1],ps[3]]],
+     [[ps[0],ps[3]],[ps[1],ps[2]]]
+   ];
+   let bestIndex=0,lowest=Infinity;
+   for(let i=0;i<layouts.length;i++){
+     const teams=layouts[i];
+     const count=(partnerCounts[pair(...teams[0])]||0)+(partnerCounts[pair(...teams[1])]||0);
+     if(count<lowest){lowest=count;bestIndex=i;}
+   }
+   return {teams:layouts[bestIndex],rest:[]};
+ }
+ let best=null,bestScore=Infinity;
+ for(const four of combos(ps,4)){
+   const rest=ps.filter(p=>!four.includes(p));
+   const layouts=[
+     [[four[0],four[1]],[four[2],four[3]]],
+     [[four[0],four[2]],[four[1],four[3]]],
+     [[four[0],four[3]],[four[1],four[2]]]
+   ];
+   for(const teams of layouts){
+     let z=0;
+     // Strongly prefer partner combinations that have not happened yet.
+     z+=(partnerCounts[pair(...teams[0])]||0)*120;
+     z+=(partnerCounts[pair(...teams[1])]||0)*120;
+     // Also spread opponents as evenly as possible.
+     for(const a of teams[0])for(const b of teams[1])z+=(opponentCounts[pair(a,b)]||0)*12;
+     // Fair breaks: prefer players with fewer breaks.
+     for(const p of rest)z+=(rests[p]||0)*45;
+     // Avoid consecutive breaks whenever an alternative exists.
+     for(const p of rest)if(lastRest.has(p))z+=1000;
+     // Keep total breaks balanced.
+     const projected=ps.map(p=>(rests[p]||0)+(rest.includes(p)?1:0));
+     z+=(Math.max(...projected)-Math.min(...projected))*35;
+     z+=Math.random()*.001;
+     if(z<bestScore){bestScore=z;best={teams,rest}}
+   }
+ }
+ return best;
+}
+function createDay(){
+ const ps=[...document.querySelectorAll(".present:checked")].map(x=>state.players[+x.dataset.i]);
+ if(ps.length<2){alert("Bitte mindestens zwei Spieler auswählen.");return}
+ const rounds=[],partnerCounts={},opponentCounts={},rests={};
+ let lastRest=new Set();
+ const n=1;
+ for(let i=0;i<n;i++){
+   const r=makeRound(ps,partnerCounts,opponentCounts,rests,lastRest);
+   for(const t of r.teams)if(t.length===2)partnerCounts[pair(t[0],t[1])]=(partnerCounts[pair(t[0],t[1])]||0)+1;
+   for(const a of r.teams[0])for(const b of r.teams[1])opponentCounts[pair(a,b)]=(opponentCounts[pair(a,b)]||0)+1;
+   r.rest.forEach(p=>rests[p]=(rests[p]||0)+1);
+   lastRest=new Set(r.rest);
+   rounds.push({teams:r.teams,rest:r.rest,winner:null,skipped:false});
+ }
+ currentDay={id:Date.now(),date:date.value,players:ps,activePlayers:[...ps],rounds,archived:false};
+ state.days.push(currentDay);
+ save();
+ show("games");
+}
+
+async function deleteCurrentDay(){
+ if(!currentDay)return;
+ const label=currentDay.date===today()?"heutigen Spielplan":"Spielplan vom "+currentDay.date;
+ if(!confirm("Möchtest du den "+label+" wirklich komplett löschen?\n\nAlle Runden und Ergebnisse dieses Spieltags werden gelöscht."))return;
+ state.days=(state.days||[]).filter(d=>d.id!==currentDay.id);
+ currentDay=null;
+ const ok=await save();
+ if(ok){renderHome();show("home");forceStandardHomeOrder();}
+}
+function getActivePlayers(){
+ if(!currentDay)return [];
+ if(!Array.isArray(currentDay.activePlayers))currentDay.activePlayers=[...(currentDay.players||[])];
+ return currentDay.activePlayers;
+}
+function renderLivePlayers(){
+ const sum=document.getElementById("livePlayersSummary"), list=document.getElementById("livePlayersList");
+ if(!sum||!list||!currentDay)return;
+ const active=getActivePlayers();
+ sum.innerHTML=active.length ? `<b>${active.length} aktiv:</b> ${active.map(esc).join(", ")}` : "Niemand aktiv";
+ list.innerHTML=state.players.map((p,i)=>`<label class="player"><span>${esc(p)}</span><input class="live-player-check" data-name="${esc(p)}" type="checkbox" ${active.includes(p)?"checked":""}></label>`).join("");
+}
+function toggleLivePlayers(){
+ const el=document.getElementById("livePlayersEditor"); if(!el)return;
+ renderLivePlayers(); el.classList.toggle("hidden");
+}
+async function saveLivePlayers(){
+ if(!currentDay)return;
+ const chosen=[...document.querySelectorAll(".live-player-check:checked")].map(x=>x.dataset.name);
+ if(chosen.length<2){alert("Mindestens zwei Spieler müssen aktiv bleiben.");return}
+ // Keep a record of everyone who took part today, even if they leave later.
+ currentDay.players=[...new Set([...(currentDay.players||[]),...chosen])];
+ currentDay.activePlayers=chosen;
+ const i=state.days.findIndex(d=>d.id===currentDay.id); if(i>=0)state.days[i]=currentDay;
+ const ok=await save();
+ if(ok){
+   document.getElementById("livePlayersEditor")?.classList.add("hidden");
+   renderGames();
+ }
+}
+function getPauseRequests(){
+ if(!currentDay)return [];
+ if(!Array.isArray(currentDay.pauseRequests))currentDay.pauseRequests=[];
+ return currentDay.pauseRequests;
+}
+function renderPersonalPause(){
+ const card=document.getElementById("personalPauseCard"),txt=document.getElementById("personalPauseText");
+ if(!card||!txt||!currentDay)return;
+ const active=getActivePlayers();
+ if(active.length<=2){card.classList.add("hidden");card.classList.remove("pause-active");return}
+ card.classList.remove("hidden");
+ const me=getMe();
+ const wanted=!!me && active.includes(me) && getPauseRequests().includes(me);
+ txt.textContent=wanted?"✓ vorgemerkt":"Antippen";
+ card.classList.toggle("pause-active",wanted);
+}
+async function togglePersonalPause(){
+ if(!currentDay)return;
+ const me=getMe();
+ if(!me){alert("Bitte wähle zuerst auf der Startseite unter „Wer bist du?“ deinen Namen aus.");return}
+ const active=getActivePlayers();
+ if(!active.includes(me)){alert("Du bist im aktuellen Spieltag nicht als aktiver Spieler eingetragen.");return}
+ let req=getPauseRequests();
+ currentDay.pauseRequests=req.includes(me)?req.filter(x=>x!==me):[...req,me];
+ const i=state.days.findIndex(d=>d.id===currentDay.id);if(i>=0)state.days[i]=currentDay;
+ await save();
+ renderPersonalPause();
+}
+function buildNextRoundPreview(){
+ if(!currentDay)return null;
+ const ps=(currentDay.activePlayers&&currentDay.activePlayers.length?currentDay.activePlayers:currentDay.players)||[];
+ if(ps.length<2)return null;
+ const requested=getPauseRequests().filter(p=>ps.includes(p));
+ const playing=ps.filter(p=>!requested.includes(p));
+ if(playing.length<2)return null;
+ const partnerCounts={},opponentCounts={},rests={};
+ let lastRest=new Set();
+ for(const old of currentDay.rounds){
+   for(const t of old.teams)if(t.length===2)partnerCounts[pair(t[0],t[1])]=(partnerCounts[pair(t[0],t[1])]||0)+1;
+   for(const a of old.teams[0])for(const b of old.teams[1])opponentCounts[pair(a,b)]=(opponentCounts[pair(a,b)]||0)+1;
+   old.rest.forEach(p=>rests[p]=(rests[p]||0)+1);
+   lastRest=new Set(old.rest);
+ }
+ const r=makeRound(playing,partnerCounts,opponentCounts,rests,lastRest);
+ return {teams:r.teams,rest:[...new Set([...requested,...r.rest])],winner:null,skipped:false};
+}
+
+async function addAnotherGame(scrollToNew=true){
+ if(!currentDay)return;
+ const ps=(currentDay.activePlayers&&currentDay.activePlayers.length?currentDay.activePlayers:currentDay.players)||[];
+ if(ps.length<2){alert("Für ein weiteres Spiel müssen mindestens zwei Spieler aktiv sein.");return}
+ const requested=getPauseRequests().filter(p=>ps.includes(p));
+ const playing=ps.filter(p=>!requested.includes(p));
+ if(playing.length<2){
+   alert("Es können nicht alle Pausenwünsche gleichzeitig berücksichtigt werden – mindestens zwei Spieler müssen für das nächste Spiel übrig bleiben.");
+   return;
+ }
+ // Genau die Vorschau übernehmen, die bereits unter dem aktuellen Spiel angezeigt wird.
+ const preview=currentDay._nextRoundPreview||buildNextRoundPreview();
+ if(!preview){alert("Das nächste Spiel konnte nicht erstellt werden.");return}
+ currentDay.rounds.push({teams:preview.teams.map(t=>[...t]),rest:[...preview.rest],winner:null,skipped:false});
+ delete currentDay._nextRoundPreview;
+ // Pausenwunsch gilt genau für das nächste neu erzeugte Spiel.
+ currentDay.pauseRequests=[];
+ const i=state.days.findIndex(d=>d.id===currentDay.id);
+ if(i>=0)state.days[i]=currentDay;
+ await save();
+ renderGames();
+ if(scrollToNew){
+   setTimeout(()=>{
+     const matches=document.querySelectorAll("#gameList .match");
+     if(matches.length)matches[matches.length-1].scrollIntoView({behavior:"smooth",block:"center"});
+   },50);
+ }
+}
+function getParallelGames(){
+ if(!currentDay)return [];
+ if(!Array.isArray(currentDay.parallelGames))currentDay.parallelGames=[];
+ return currentDay.parallelGames;
+}
+function openPauseGamePicker(roundIndex){
+
+ const r=currentDay?.rounds?.[roundIndex];if(!r)return;
+ const rest=[...(r.rest||[])];
+ if(getParallelGames().some(g=>g.roundIndex===roundIndex)){alert("Zu dieser Runde gibt es bereits ein Pausenspiel.");return}
+ if(rest.length<2){alert("Für ein Pausenspiel müssen mindestens zwei Spieler Pause haben.");return}
+ pauseGamePicker.dataset.roundIndex=roundIndex;
+ pauseGamePickerTitle.textContent="Pausenspiel zu Runde "+(roundIndex+1)+" hinzufügen";
+ document.getElementById("pauseGameWinnerWrap").classList.remove("hidden");
+ document.getElementById("pauseGameWinner").value="";
+ pauseGamePickerPlayers.innerHTML=rest.map(n=>`<label class="checkrow"><input type="checkbox" class="pause-game-player" value="${esc(n)}"><span>${esc(n)}</span></label>`).join("");
+ pauseGamePicker.classList.remove("hidden");
+}
+function closePauseGamePicker(){pauseGamePicker?.classList.add("hidden")}
+async function confirmPauseGame(){
+ const roundIndex=Number(pauseGamePicker.dataset.roundIndex);
+ const players=[...pauseGamePicker.querySelectorAll(".pause-game-player:checked")].map(x=>x.value);
+ if(players.length<2||players.length>4){alert("Bitte 2, 3 oder 4 Spieler auswählen.");return}
+ const r=currentDay?.rounds?.[roundIndex],rest=r?.rest||[];
+ if(players.some(n=>!rest.includes(n))){alert("Es können nur Spieler ausgewählt werden, die in dieser Runde Pause haben.");return}
+ if(getParallelGames().some(g=>g.roundIndex===roundIndex)){alert("Zu dieser Runde gibt es bereits ein Pausenspiel.");return}
+ let teams=players.length===2?[[players[0]],[players[1]]]:players.length===3?[[players[0],players[1]],[players[2]]]:[[players[0],players[1]],[players[2],players[3]]];
+ const resultValue=document.getElementById("pauseGameWinner").value;
+ const winner=resultValue===""?null:Number(resultValue);
+ getParallelGames().push({id:Date.now(),roundIndex,players:[...players],teams,winner,finishedAt:winner===null?null:new Date().toISOString()});
+ const i=state.days.findIndex(d=>d.id===currentDay.id);if(i>=0)state.days[i]=currentDay;
+ closePauseGamePicker();
+ await save();
+ renderGames();
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{
+   document.getElementById("parallelGames")?.scrollIntoView({behavior:"smooth",block:"center"});
+ }));
+}
+async function parallelWinner(id,w){
+ const g=getParallelGames().find(x=>x.id===id);if(!g)return;g.winner=g.winner===w?null:w;g.finishedAt=g.winner===null?null:new Date().toISOString();
+ const i=state.days.findIndex(d=>d.id===currentDay.id);if(i>=0)state.days[i]=currentDay;
+ await save();renderGames();
+}
+async function deleteParallelGame(id){
+ currentDay.parallelGames=getParallelGames().filter(x=>x.id!==id);
+ const i=state.days.findIndex(d=>d.id===currentDay.id);if(i>=0)state.days[i]=currentDay;
+ await save();renderGames();
+}
+function renderParallelGames(){
+ const box=document.getElementById("parallelGames");if(!box||!currentDay)return;
+ const games=getParallelGames();
+ const lastRoundIndex=currentDay.rounds.length-1;
+
+ // Pausenspiele gehören immer nur zur aktuellsten Runde.
+ // Alte Pausenspiele bleiben in den Daten/Statistiken, werden im laufenden Spielplan aber nicht mehr angezeigt.
+ const visibleGames=games;
+ const r=currentDay.rounds[lastRoundIndex];
+ const rest=r?.rest||[];
+ const canStart=rest.length>=2&&!games.some(g=>g.roundIndex===lastRoundIndex);
+
+ const cards=visibleGames.map(g=>{
+  const t=g.teams||[],a=(t[0]||[]).join(" + "),b=(t[1]||[]).join(" + ");
+  return `<div class="parallel-box"><div class="parallel-title">↔️ Pausenspiel · Runde ${g.roundIndex+1}</div><strong>${esc(a)} VS ${esc(b)}</strong><div class="parallel-note">Nur Spieler aus der Pause dieser Runde. Der Hauptspielplan bleibt unverändert.</div><div class="parallel-actions"><button class="winbtn ${g.winner===0?"active":""}" onclick="parallelWinner(${g.id},0)">🏆 ${esc(a)} gewinnt</button><button class="winbtn ${g.winner===1?"active":""}" onclick="parallelWinner(${g.id},1)">🏆 ${esc(b)} gewinnt</button></div><button class="skip" onclick="deleteParallelGame(${g.id})">🗑 Pausenspiel entfernen</button></div>`;
+ }).join("");
+
+ const start=canStart
+  ? `<div class="parallel-box"><div class="parallel-title">🏸 Pause: ${rest.map(esc).join(", ")}</div><div class="parallel-note">Nur diese Spieler können für das aktuelle Pausenspiel ausgewählt werden.</div><button class="secondary" style="width:100%" onclick="openPauseGamePicker(${lastRoundIndex})">＋ Pausenspiel auswählen</button></div>`
+  : "";
+
+ box.innerHTML=cards+start;
+}
+async function undoLastRound(){
+ if(!currentDay||!Array.isArray(currentDay.rounds)||currentDay.rounds.length<=1)return;
+ const lastIndex=currentDay.rounds.length-1;
+ if(!confirm(`Runde ${lastIndex+1} zurücknehmen und wieder zu Runde ${lastIndex} springen?`))return;
+ currentDay.rounds.pop();
+ if(Array.isArray(currentDay.parallelGames))currentDay.parallelGames=currentDay.parallelGames.filter(g=>g.roundIndex<lastIndex);
+ currentDay.pauseRequests=[];
+ delete currentDay._nextRoundPreview;
+ const idx=state.days.findIndex(d=>d.id===currentDay.id);if(idx>=0)state.days[idx]=currentDay;
+ await save();
+ renderGames();
+ setTimeout(()=>{const ms=document.querySelectorAll("#gameList .match");ms[ms.length-1]?.scrollIntoView({behavior:"smooth",block:"center"})},50);
+}
+let manualEditingRound=null;
+function openManualRoundForm(roundIndex=null){
+ if(!currentDay)return;
+ manualEditingRound=Number.isInteger(roundIndex)?roundIndex:null;
+ const old=manualEditingRound===null?null:currentDay.rounds[manualEditingRound];
+ if(old&&(old.winner===0||old.winner===1||old.skipped)){
+   alert("Bereits gespielte oder übersprungene Runden können hier nicht umgestellt werden.");return;
+ }
+ const names=[...new Set([...(currentDay.players||[]),...(currentDay.activePlayers||[])])];
+ const ids=["manualBlue1","manualBlue2","manualRed1","manualRed2"];
+ const defaults=old?[old.teams?.[0]?.[0],old.teams?.[0]?.[1],old.teams?.[1]?.[0],old.teams?.[1]?.[1]]:[null,null,null,null];
+ ids.forEach((id,i)=>{
+   const el=document.getElementById(id);
+   el.innerHTML='<option value="">– frei –</option>'+names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join("");
+   el.value=defaults[i]||"";
+ });
+ document.getElementById("manualRoundWinner").value="";
+ document.getElementById("manualRoundTitle").textContent=old?"Offene Runde "+(manualEditingRound+1)+" ändern":"Spiel manuell hinzufügen";
+ document.getElementById("manualRoundForm").classList.remove("hidden");
+ document.getElementById("manualRoundForm").scrollIntoView({behavior:"smooth",block:"center"});
+}
+function closeManualRoundForm(){document.getElementById("manualRoundForm").classList.add("hidden");manualEditingRound=null}
+async function saveManualRound(){
+ if(!currentDay)return;
+ const get=id=>document.getElementById(id).value;
+ const teams=[[get("manualBlue1"),get("manualBlue2")].filter(Boolean),[get("manualRed1"),get("manualRed2")].filter(Boolean)];
+ const selected=teams.flat();
+ if(!teams[0].length||!teams[1].length){alert("Bitte für jedes Team mindestens einen Spieler auswählen.");return}
+ if(new Set(selected).size!==selected.length){alert("Ein Spieler darf in diesem Spiel nur einmal vorkommen.");return}
+ const winnerValue=document.getElementById("manualRoundWinner").value;
+ const winner=winnerValue===""?null:Number(winnerValue);
+ const rest=(currentDay.players||[]).filter(n=>!selected.includes(n));
+ const round={teams,rest,winner,skipped:false,manual:true,finishedAt:winner===null?null:new Date().toISOString()};
+ const oldRounds=cloneState(currentDay.rounds);
+ const editing=manualEditingRound;
+ if(editing===null)currentDay.rounds.push(round);
+ else{
+   if(!currentDay.rounds[editing]||currentDay.rounds[editing].winner!==null){alert("Die Runde wurde zwischenzeitlich geändert.");return}
+   currentDay.rounds[editing]=round;
+ }
+ delete currentDay._nextRoundPreview;
+ const idx=state.days.findIndex(d=>d.id===currentDay.id);if(idx>=0)state.days[idx]=currentDay;
+ const ok=await save();
+ if(!ok){currentDay.rounds=oldRounds;return}
+ closeManualRoundForm();renderGames();
+}
+async function movePendingRound(index,direction){
+ if(!currentDay)return;
+ const other=index+direction, rounds=currentDay.rounds;
+ if(other<0||other>=rounds.length)return;
+ const movable=r=>r&&r.winner===null&&!r.skipped;
+ if(!movable(rounds[index])||!movable(rounds[other])){
+   alert("Nur zwei noch nicht gespielte Runden können ihre Plätze tauschen.");return;
+ }
+ const oldRounds=cloneState(rounds),oldParallel=cloneState(currentDay.parallelGames||[]);
+ [rounds[index],rounds[other]]=[rounds[other],rounds[index]];
+ // Pausenspiele gehören zur Runde und wandern mit.
+ (currentDay.parallelGames||[]).forEach(g=>{if(g.roundIndex===index)g.roundIndex=other;else if(g.roundIndex===other)g.roundIndex=index});
+ delete currentDay._nextRoundPreview;
+ const idx=state.days.findIndex(d=>d.id===currentDay.id);if(idx>=0)state.days[idx]=currentDay;
+ const ok=await save();
+ if(!ok){currentDay.rounds=oldRounds;currentDay.parallelGames=oldParallel;return}
+ closeManualRoundForm();renderGames();
+}
+function renderGames(){
+ if(!currentDay){currentDay=[...(state.days||[])].reverse().find(d=>d.archived===false)||null;if(!currentDay){show("setup");return}}
+ if(currentDay.archived!==false){currentDay=null;show("setup");return}
+ const active=getActivePlayers();
+ const undoBtn=document.getElementById("undoRoundBtn");
+ if(undoBtn)undoBtn.classList.toggle("hidden",currentDay.rounds.length<=1);
+ renderPersonalPause();
+ gameInfo.textContent=`${new Date(currentDay.date+"T12:00").toLocaleDateString("de-DE")} · ${active.length} aktuell aktiv · ${currentDay.rounds.length} Runden`;
+ renderLivePlayers();
+ gameList.innerHTML=currentDay.rounds.map((r,i)=>{
+   const a=r.teams[0].join(" + "),b=r.teams[1].join(" + ");
+   const next=currentDay.rounds[i+1];
+   let preview=next;
+   if(!preview && i===currentDay.rounds.length-1){
+     preview=buildNextRoundPreview();
+     currentDay._nextRoundPreview=preview;
+   }
+   const nextMini=preview?`<div class="next-game-mini">👀 <strong>Als Nächstes:</strong> ${esc(preview.teams[0].join(" + "))} vs. ${esc(preview.teams[1].join(" + "))}</div>`:"";
+   const pending=r.winner===null&&!r.skipped;
+   const movable=direction=>{const other=currentDay.rounds[i+direction];return pending&&other&&other.winner===null&&!other.skipped};
+   const pauseTool=i!==currentDay.rounds.length-1&&(r.rest||[]).length>=2&&!getParallelGames().some(g=>g.roundIndex===i)?`<button class="secondary" style="margin-top:9px;width:100%;font-size:12px" onclick="openPauseGamePicker(${i})">＋ Pausenspiel zu Runde ${i+1} hinzufügen</button>`:"";
+   const tools=pending?`<div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap"><button class="secondary" style="flex:1;padding:9px 7px;font-size:12px" onclick="openManualRoundForm(${i})">✏️ Teams ändern</button><button class="secondary" style="padding:9px 12px" ${movable(-1)?'':'disabled'} onclick="movePendingRound(${i},-1)" title="Runde nach oben" aria-label="Runde nach oben">↑</button><button class="secondary" style="padding:9px 12px" ${movable(1)?'':'disabled'} onclick="movePendingRound(${i},1)" title="Runde nach unten" aria-label="Runde nach unten">↓</button></div>`:"";
+   return `<div class="match" style="${r.skipped?'opacity:.55':''}"><div class="matchhead">RUNDE ${i+1}${r.skipped?" · NICHT GESPIELT":""}</div><div class="teams"><div class="team blue">${a}</div><div class="vs">VS</div><div class="team red">${b}</div></div><div class="pause">⏸ Pause: ${r.rest.length ? r.rest.join(", ") : "Niemand"}</div>${nextMini}${!r.skipped?`<button class="winbtn ${r.winner===0?"active":""}" onclick="winner(${i},0)">🏆 ${a} gewinnt</button><button class="winbtn ${r.winner===1?"active":""}" onclick="winner(${i},1)">🏆 ${b} gewinnt</button>`:""}<button class="skip" onclick="skip(${i})">${r.skipped?"↶ Runde wieder aktivieren":"⊘ Nicht gespielt"}</button>${tools}${pauseTool}</div>`
+ }).join("");
+ renderParallelGames();
+}
+function update(){const i=state.days.findIndex(d=>d.id===currentDay.id);if(i>=0)state.days[i]=currentDay;save();renderGames()}
+async function winner(i,w){
+ const r=currentDay.rounds[i];
+ const oldWinner=r.winner;
+ const isLast=i===currentDay.rounds.length-1;
+ r.winner=oldWinner===w?null:w;
+ r.skipped=false;
+ r.finishedAt=r.winner===null?null:new Date().toISOString();
+
+ // Erst Ergebnis wie bisher speichern/rendern.
+ update();
+
+ // Nur wenn bei der aktuell letzten Runde erstmals ein Gewinner gesetzt/geändert wurde:
+ // kurz warten, dann exakt eine neue Runde über die bestehende Funktion erzeugen.
+ if(isLast && r.winner!==null && r.winner!==oldWinner){
+   await new Promise(resolve=>setTimeout(resolve,120));
+   addAnotherGame(false);
+ }
+}
+function skip(i){currentDay.rounds[i].skipped=!currentDay.rounds[i].skipped;if(currentDay.rounds[i].skipped){currentDay.rounds[i].winner=null;currentDay.rounds[i].finishedAt=null}update()}
+function formatResultTime(iso){
+ if(!iso)return "Uhrzeit nicht gespeichert";
+ try{return new Date(iso).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})+" Uhr"}catch(e){return "Uhrzeit nicht gespeichert"}
+}
+function renderDayDetails(d){
+ const rounds=(d.rounds||[]).map((r,i)=>{
+  if(r.skipped || (r.winner!==0 && r.winner!==1))return "";
+  const a=(r.teams?.[0]||[]).join(" + "), b=(r.teams?.[1]||[]).join(" + ");
+  const result=r.skipped?"Nicht gespielt":r.winner===0?`${a} gewonnen`:r.winner===1?`${b} gewonnen`:"Kein Ergebnis";
+  return `<div style="padding:9px 0;border-top:1px solid rgba(255,255,255,.08)"><strong>Runde ${i+1}</strong><div class="small">${esc(a)} vs. ${esc(b)}</div><div class="small">🏆 ${esc(result)} · ${formatResultTime(r.finishedAt)}</div><div class="small">⏸ Pause: ${(r.rest||[]).length?(r.rest||[]).map(esc).join(", "):"Niemand"}</div></div>`;
+ }).join("");
+ const parallel=(d.parallelGames||[]).map(g=>{const a=(g.teams?.[0]||[]).join(" + "),b=(g.teams?.[1]||[]).join(" + ");const result=g.winner===0?`${a} gewonnen`:g.winner===1?`${b} gewonnen`:"Kein Ergebnis";return `<div style="padding:9px 0;border-top:1px solid rgba(255,255,255,.08)"><strong>Pausenspiel · Runde ${(g.roundIndex||0)+1}</strong><div class="small">${esc(a)} vs. ${esc(b)}</div><div class="small">🏆 ${esc(result)} · ${formatResultTime(g.finishedAt)}</div></div>`}).join("");
+ return rounds+parallel;
+}
+function toggleDayDetails(id){document.getElementById(`dayDetails-${id}`)?.classList.toggle("hidden")}
+function renderDayManager(){
+ const el=document.getElementById("dayManager"); if(!el)return;
+ const archived=(state.days||[]);
+ if(!archived.length){el.innerHTML='<div class="notice">Noch keine abgeschlossenen Spieltage gespeichert.</div>';return}
+ el.innerHTML=[...archived].reverse().map(d=>{
+   const played=(d.rounds||[]).filter(r=>r.winner!==null&&!r.skipped).length;
+   const label=new Date(d.date+"T12:00").toLocaleDateString("de-DE");
+   return `<div class="match" style="margin-bottom:10px">
+     <div role="button" tabindex="0" onclick="toggleDayDetails(${d.id})"><div class="matchhead">${label}</div><strong>🏸 ${played} gespielte Runden</strong><div class="small">${(d.players||[]).map(esc).join(", ")} · Tippen für Details ›</div></div>
+     <div id="dayDetails-${d.id}" class="hidden" style="margin-top:8px">${renderDayDetails(d)}<button class="secondary" style="width:100%;margin-top:10px" onclick="editDay(${d.id})">✏️ Spieltag bearbeiten</button><button class="danger" style="width:100%;margin-top:7px" onclick="deleteDay(${d.id})">🗑 Spieltag löschen</button></div>
+   </div>`;
+ }).join("");
+}
+async function editDay(id){
+ const d=state.days.find(x=>x.id===id); if(!d)return;
+ d.archived=false; delete d.archivedAt;
+ currentDay=d;
+ const idx=state.days.findIndex(x=>x.id===id);if(idx>=0)state.days[idx]=d;
+ await save();
+ show("games");window.scrollTo({top:0,behavior:"smooth"});
+}
+async function deleteDay(id){
+ const d=state.days.find(x=>x.id===id); if(!d)return;
+ const label=new Date(d.date+"T12:00").toLocaleDateString("de-DE");
+ if(!confirm(`Den Spieltag vom ${label} wirklich löschen? Nur dieser Spieltag und seine Ergebnisse werden entfernt.`))return;
+ state.days=state.days.filter(x=>x.id!==id);
+ if(currentDay&&currentDay.id===id)currentDay=null;
+ const ok=await save();renderStats("all");renderDayManager();renderHome();
+ if(ok)alert(`Spieltag vom ${label} wurde gelöscht.`);
+}
+function inRange(d,r){const x=new Date(d+"T12:00"),n=new Date();if(r==="all")return true;if(r==="day")return d===today();if(r==="month")return x.getMonth()===n.getMonth()&&x.getFullYear()===n.getFullYear();return (new Date(n.getFullYear(),n.getMonth(),n.getDate())-new Date(x.getFullYear(),x.getMonth(),x.getDate()))/86400000<7}
+function calc(range){const m={};state.days.filter(d=>inRange(d.date,range)).forEach(d=>{d.rounds.filter(r=>r.winner!==null&&!r.skipped).forEach(r=>r.teams.forEach((t,ti)=>t.forEach(p=>{m[p]??={games:0,wins:0};m[p].games++;if(ti===r.winner)m[p].wins++})));(d.parallelGames||[]).filter(g=>g.winner!==null&&g.winner!==undefined).forEach(g=>(g.teams||[]).forEach((t,ti)=>t.forEach(p=>{m[p]??={games:0,wins:0};m[p].games++;if(ti===g.winner)m[p].wins++})))});return m}
+let activeStatsRange="all";
+function renderStats(range){
+ activeStatsRange=range;
+ document.querySelectorAll("#statsRangeButtons button").forEach(btn=>{
+  const selected=btn.dataset.range===range;
+  btn.classList.toggle("stats-range-selected",selected);
+  btn.setAttribute("aria-pressed",String(selected));
+ });
+ const data=calc(range);
+ const rows=Object.entries(data).sort((a,b)=>(b[1].games?b[1].wins/b[1].games:0)-(a[1].games?a[1].wins/a[1].games:0));
+ const me=getMe(),mine=me?(data[me]||{games:0,wins:0}):{games:0,wins:0};
+ const myQuote=mine.games?Math.round(mine.wins/mine.games*100):0;
+ const days=(state.days||[]).filter(d=>inRange(d.date,range));
+ const finishedRounds=days.reduce((sum,d)=>sum+(d.rounds||[]).filter(r=>r&&r.winner!==null&&r.winner!==undefined&&!r.skipped).length+(d.parallelGames||[]).filter(g=>g&&g.winner!==null&&g.winner!==undefined&&!g.skipped).length,0);
+ const allRounds=(state.days||[]).reduce((sum,d)=>sum+(d.rounds||[]).filter(r=>r&&r.winner!==null&&r.winner!==undefined&&!r.skipped).length+(d.parallelGames||[]).filter(g=>g&&g.winner!==null&&g.winner!==undefined&&!g.skipped).length,0);
+ const playedDays=days.filter(d=>(d.rounds||[]).some(r=>r&&r.winner!==null&&r.winner!==undefined&&!r.skipped)||(d.parallelGames||[]).some(g=>g&&g.winner!==null&&g.winner!==undefined&&!g.skipped));
+ const distinctPlayedDates=new Set(playedDays.map(d=>d.date));
+ const myPlayedDates=new Set(playedDays.filter(d=>(d.players||[]).includes(me)).map(d=>d.date));
+ const dayAttendance=distinctPlayedDates.size;
+ const myAttendance=myPlayedDates.size;
+ const opponents=me?personalOpponentStats(me,range):null;
+ const personal=me?`<div class="card" style="margin:0 0 12px;padding:13px"><h3>👤 Meine Statistik – ${esc(me)}</h3><div class="personal-stats"><div class="personal-stat"><b>${mine.games}</b><span>Gespielte Runden</span></div><div class="personal-stat"><b>${mine.wins}</b><span>Siege</span></div><div class="personal-stat"><b>${myQuote}%</b><span>Siegquote</span></div><div class="personal-stat"><b>${myAttendance} von ${dayAttendance}</b><span>Spieltagen dabei</span></div></div><div class="personal-opponents"><div class="personal-opponent"><div class="small">🏆 Am meisten gewonnen gegen</div>${opponents.win?`<strong>${esc(opponents.win[0])}</strong><span>${opponents.win[1].wins}× gewonnen · ${opponents.win[1].losses}× verloren</span>`:'<strong>–</strong><span>Noch kein gewertetes Spiel</span>'}</div><div class="personal-opponent"><div class="small">😵 Am meisten verloren gegen</div>${opponents.loss?`<strong>${esc(opponents.loss[0])}</strong><span>${opponents.loss[1].losses}× verloren · ${opponents.loss[1].wins}× gewonnen</span>`:'<strong>–</strong><span>Noch kein gewertetes Spiel</span>'}</div></div></div>`:'<div class="notice">Wähle unter ⚙️ Einstellungen deinen Spielernamen, um deine persönliche Statistik zu sehen.</div>';
+ statsContent.innerHTML=`${personal}<h3>🏸 Gespielte Runden</h3><div class="personal-stats" style="margin-bottom:14px"><div class="personal-stat"><b>${mine.games}</b><span>Meine Runden</span></div><div class="personal-stat"><b>${finishedRounds}</b><span>Runden im Zeitraum</span></div><div class="personal-stat"><b>${allRounds}</b><span>Runden insgesamt</span></div><div class="personal-stat"><b>${dayAttendance}</b><span>Gespielte Tage im Zeitraum</span></div></div><div class="small" style="margin-bottom:12px">Gezählt werden abgeschlossene Runden mit Ergebnis, einschließlich Pausenspielen.</div><h3>📊 Alle Spieler</h3>${rows.length?`<table class="table"><tr><th>Spieler</th><th>Runden</th><th>Siege</th><th>Quote</th></tr>${rows.map(([p,x])=>`<tr><td>${esc(p)}</td><td>${x.games}</td><td>${x.wins}</td><td>${x.games?Math.round(x.wins/x.games*100):0}%</td></tr>`).join("")}</table>`:'<div class="notice">Noch keine abgeschlossenen Spiele.</div>'}`;
+}
+
+function getMe(){
+ const n=localStorage.getItem("badminton_me")||"";
+ return state.players.includes(n)?n:"";
+}
+function setMe(name){
+ if(name && state.players.includes(name))localStorage.setItem("badminton_me",name);
+ else localStorage.removeItem("badminton_me");
+ if(name && state.players.includes(name)){
+   localStorage.setItem("badminton_identity_chosen","1");
+   document.getElementById("firstUserOverlay")?.classList.add("hidden");
+ }
+ renderPersonalHome();
+ if(typeof renderHeaderGreeting==="function")renderHeaderGreeting();
+ if(typeof renderSettingsPlayer==="function")renderSettingsPlayer();
+ if(typeof refreshPushStatus==="function")refreshPushStatus();
+ if(typeof loadPushPreferences==="function")loadPushPreferences();
+ if(typeof fillCashSelects==="function")fillCashSelects();
+}
+function chooseMe(){
+ const chooser=document.getElementById("personalChooser");
+ const overview=document.getElementById("personalOverview");
+ const greeting=document.getElementById("personalGreeting");
+ const hint=document.getElementById("personalHint");
+ if(!chooser)return;
+ greeting.textContent="Wer bist du?";
+ hint.textContent="Wähle deinen Namen aus.";
+ overview.classList.add("hidden");
+ chooser.classList.remove("hidden");
+ chooser.className="personal-chooser";
+ chooser.innerHTML=state.players.map(n=>`<button class="secondary personal-person" onclick='setMe(${JSON.stringify(n)})'>${esc(n)}</button>`).join("");
+}
+function showFirstUserChoiceIfNeeded(){
+ const overlay=document.getElementById("firstUserOverlay"),box=document.getElementById("firstUserChooser");
+ if(!overlay||!box)return;
+ const me=getMe();
+ if(me){overlay.classList.add("hidden");return}
+ box.innerHTML=state.players.map(n=>`<button class="secondary personal-person" onclick='setMe(${JSON.stringify(n)})'>${esc(n)}</button>`).join("");
+ overlay.classList.remove("hidden");
+}
+function renderHeaderGreeting(){
+ const el=document.getElementById("headerGreeting");if(!el)return;
+ const me=getMe();if(!me){el.textContent="";return}
+ const shownMe=me==="Michael"?"Bruch":me;
+ const h=new Date().getHours(),part=h<11?"Guten Morgen":h<18?"Hallo":"Guten Abend";
+ el.textContent=`${part} ${shownMe} 👋`;
+}
+function loadPushPreferences(){const me=getMe()||"";for(const [id,key] of [["pushPrefReminder","reminder"]]){const el=document.getElementById(id);if(el)el.checked=localStorage.getItem("badminton_push_pref_"+me+"_"+key)!=="0";}}
+async function savePushPreferences(){const me=getMe();if(!me)return;for(const [id,key] of [["pushPrefReminder","reminder"]]){const el=document.getElementById(id);if(el)localStorage.setItem("badminton_push_pref_"+me+"_"+key,el.checked?"1":"0");}try{const reg=await navigator.serviceWorker.getRegistration('./');const sub=reg?await reg.pushManager.getSubscription():null;if(sub){const r=await fetch('./push_api.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'preferences',endpoint:sub.endpoint,subscription:sub.toJSON(),player:me,preferences:currentPushPreferences()})});const v=await r.json();if(!r.ok||!v.ok)throw Error(v.error||'Speichern fehlgeschlagen');}}catch(e){pushMessage('Push-Auswahl konnte nicht übertragen werden: '+e.message);}}
+function currentPushPreferences(){const me=getMe()||'';return {reminder:localStorage.getItem('badminton_push_pref_'+me+'_reminder')!=='0',booked:false};}
+function openSettings(){
+ loadPushPreferences();
+ document.getElementById("settingsPlayerChooser")?.classList.add("hidden");
+ renderSettingsPlayer();
+ refreshPushStatus();
+ document.getElementById("settingsOverlay")?.classList.remove("hidden");
+}
+function closeSettings(){document.getElementById("settingsOverlay")?.classList.add("hidden")}
+function renderSettingsPlayer(){const el=document.getElementById("settingsPlayer");if(el)el.textContent=getMe()||"Noch nicht ausgewählt"}
+function settingsChooseMe(){
+ const box=document.getElementById("settingsPlayerChooser");if(!box)return;
+ box.innerHTML=state.players.map(n=>`<button class="secondary personal-person" onclick='setMe(${JSON.stringify(n)});document.getElementById("settingsPlayerChooser").classList.add("hidden")'>${esc(n)}</button>`).join("");
+ box.classList.toggle("hidden");
+}
+async function backupApi(body){
+ const response=await fetch("api.php",{method:"POST",headers:{"Content-Type":"application/json"},cache:"no-store",body:JSON.stringify(body)});
+ const result=await response.json();
+ if(!result.ok) throw new Error(result.error||"Backup-Aktion fehlgeschlagen");
+ return result;
+}
+async function createManualBackup(){
+ try{await backupApi({action:"backup_create"});alert("Backup wurde erstellt. ✓");await loadBackupList();}
+ catch(e){console.error(e);alert(e.message||"Backup konnte nicht erstellt werden.")}
+}
+async function toggleBackupList(){
+ const box=document.getElementById("backupList");if(!box)return;
+ if(!box.classList.contains("hidden")){box.classList.add("hidden");return}
+ box.classList.remove("hidden");box.innerHTML='<div class="small">Lade Backups …</div>';await loadBackupList();
+}
+function backupDate(s){
+ const d=new Date(String(s).replace(" ","T"));
+ return isNaN(d)?s:d.toLocaleString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
+}
+async function loadBackupList(){
+ const box=document.getElementById("backupList");if(!box||box.classList.contains("hidden"))return;
+ try{
+  const r=await fetch("api.php?action=backups",{cache:"no-store"}),x=await r.json();
+  if(!x.ok)throw new Error(x.error||"Backups konnten nicht geladen werden");
+  const rows=x.backups||[];
+  if(!rows.length){box.innerHTML='<div class="small">Noch keine Backups vorhanden.</div>';return}
+  box.innerHTML=rows.map(b=>`<div class="backup-row"><strong>${backupDate(b.created_at)}</strong><div class="small">${b.reason==="manual"?"Manuell":b.reason==="before_restore"?"Vor Wiederherstellung":"Automatisch"}</div><div class="backup-actions"><button class="secondary" onclick="downloadBackup(${Number(b.id)})">⬇️ JSON</button><button class="secondary" onclick="restoreBackup(${Number(b.id)})">↩️ Wiederherstellen</button></div></div>`).join("");
+ }catch(e){box.innerHTML=`<div class="small">${esc(e.message||"Fehler beim Laden")}</div>`}
+}
+async function downloadBackup(id){
+ try{
+  const r=await fetch(`api.php?action=backup&id=${encodeURIComponent(id)}`,{cache:"no-store"}),x=await r.json();
+  if(!x.ok)throw new Error(x.error||"Backup nicht gefunden");
+  const blob=new Blob([JSON.stringify(x.backup.state,null,2)],{type:"application/json"});
+  const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=`badminton-backup-${id}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);
+ }catch(e){alert(e.message||"Download fehlgeschlagen.")}
+}
+async function restoreBackup(id){
+ if(!confirm("Diesen Datenstand wirklich wiederherstellen? Der aktuelle Stand wird vorher automatisch als Backup gesichert."))return;
+ try{
+  const x=await backupApi({action:"restore",id});
+  if(x.state)state=x.state;
+  currentDay=null;
+  renderPlayers();renderHome();renderAppointments();renderCash();renderStats("all");renderSettingsPlayer();
+  alert("Backup wurde wiederhergestellt. ✓");
+  await loadBackupList();
+ }catch(e){console.error(e);alert(e.message||"Wiederherstellung fehlgeschlagen.")}
+}
+function personalOpponentStats(me,range="all"){
+ const stats={};
+ (state.days||[]).filter(d=>inRange(d.date,range)).forEach(d=>(d.rounds||[]).forEach(r=>{
+   if(r.winner===null||r.winner===undefined||r.skipped||!Array.isArray(r.teams)||r.teams.length<2)return;
+   const myTeam=r.teams.findIndex(t=>(t||[]).includes(me));
+   if(myTeam<0)return;
+   r.teams.forEach((team,ti)=>{
+     if(ti===myTeam)return;
+     (team||[]).forEach(op=>{
+       if(!op||op===me)return;
+       stats[op]??={games:0,wins:0,losses:0};
+       stats[op].games++;
+       if(r.winner===myTeam)stats[op].wins++;
+       else stats[op].losses++;
+     });
+   });
+ }));
+ const rows=Object.entries(stats).filter(([,x])=>x.games>0);
+ const mostWins=[...rows].sort((a,b)=>b[1].wins-a[1].wins||b[1].games-a[1].games||a[0].localeCompare(b[0],"de"))[0];
+ const mostLosses=[...rows].sort((a,b)=>b[1].losses-a[1].losses||b[1].games-a[1].games||a[0].localeCompare(b[0],"de"))[0];
+ return {
+   win:mostWins&&mostWins[1].wins>0?mostWins:null,
+   loss:mostLosses&&mostLosses[1].losses>0?mostLosses:null
+ };
+}
+function renderPersonalHome(){
+ const chooser=document.getElementById("personalChooser");
+ const overview=document.getElementById("personalOverview");
+ const greeting=document.getElementById("personalGreeting");
+ const hint=document.getElementById("personalHint");
+ if(!chooser||!overview)return;
+ const me=getMe();
+ if(!me){chooseMe();return}
+ chooser.classList.add("hidden");
+ overview.classList.remove("hidden");
+ greeting.textContent="Hallo "+me+" 👋";
+ hint.textContent="Dein aktueller Stand";
+ const b=cashBalances()[me]||0;
+ const all=calc("all")[me]||{games:0,wins:0};
+ const quote=all.games?Math.round(all.wins/all.games*100):0;
+ const cls=b<-.005?"cash-minus":b>.005?"cash-plus":"";
+ overview.innerHTML=`<div class="personal-balance"><span>💰 Dein Kontostand</span><strong class="${cls}">${money(b)}</strong></div>
+ <div class="personal-stats">
+  <div class="personal-stat"><b>${all.games}</b><span>Spiele</span></div>
+  <div class="personal-stat"><b>${all.wins}</b><span>Siege</span></div>
+  <div class="personal-stat"><b>${quote}%</b><span>Siegquote</span></div>
+ </div>
+ ${(()=>{const o=personalOpponentStats(me);return `<div style="margin-top:14px"><strong>⚔️ Deine Gegner</strong></div><div class="personal-opponents">
+   <div class="personal-opponent"><div class="small">🏆 Am meisten gewonnen gegen</div>${o.win?`<strong>${esc(o.win[0])}</strong><span>${o.win[1].wins}× gewonnen · ${o.win[1].losses}× verloren</span>`:'<strong>–</strong><span>Noch kein gewertetes Spiel</span>'}</div>
+   <div class="personal-opponent"><div class="small">😵 Am meisten verloren gegen</div>${o.loss?`<strong>${esc(o.loss[0])}</strong><span>${o.loss[1].losses}× verloren · ${o.loss[1].wins}× gewonnen</span>`:'<strong>–</strong><span>Noch kein gewertetes Spiel</span>'}</div>
+  </div>`})()}`;
+}
+
+function openCurrentGames(){
+ const d=[...(state.days||[])].reverse().find(x=>x.archived===false);
+ if(!d){currentDay=null;show("setup");return;}
+ currentDay=d;
+ show("games");
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function renderTodayCourt(){
+ const box=document.getElementById("todayCourtCard"); if(!box)return;
+ const d=today();
+ const a=(state.appointments||[]).filter(x=>x.date===d&&x.booked&&x.court).sort((x,y)=>x.from.localeCompare(y.from))[0];
+ if(!a){box.innerHTML="";return}
+ box.innerHTML=`<div class="card" style="border:1px solid #38cf79;background:linear-gradient(135deg,#12352a,#112932)">
+   <div class="small">🏸 Heute ist Badminton!</div>
+   <h2 style="margin:5px 0">🎯 Heute spielt ihr auf Court ${esc(a.court)}</h2>
+   <div>${esc(a.from)}–${esc(a.to)} Uhr</div>
+   <div class="small" style="margin-top:6px">📍 ${esc(APPT_LOCATION)}</div>
+ </div>`;
+}
+function openAppointmentDetails(id){
+ show("appointments");
+ // renderAppointments() runs when the section is opened; wait for the DOM to paint.
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{
+   const el=document.getElementById("appointment-"+id);
+   if(el)el.scrollIntoView({behavior:"smooth",block:"center"});
+ }));
+}
+function openPaymentForAppointment(date,payer){
+ show("cash");
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{
+   openExpenseForm();
+   if(date)expenseDate.value=date;
+   prefillExpenseForDate();
+   if(payer){
+     expensePayer.value=payer;
+     const names=cashPlayersForDate(date);
+     [...expenseParticipants.querySelectorAll("input")].forEach(x=>x.checked=names.includes(x.value));
+   }
+   expenseFormCard.scrollIntoView({behavior:"smooth",block:"start"});
+   setTimeout(()=>expenseAmount?.focus(),450);
+ }));
+}
+function startTodayBadmintonFromHome(apptId){
+ const me=getMe();
+ const a=(state.appointments||[]).find(x=>x.id===apptId);
+ if(!a||a.date!==today()||!me||(a.participants||[]).indexOf(me)<0){
+   if(a)openAppointmentDetails(apptId);
+   return;
+ }
+ // Falls für heute schon ein Spieltag existiert, direkt dort weitermachen.
+ const existing=(state.days||[]).filter(d=>d.date===today()).sort((x,y)=>(y.id||0)-(x.id||0))[0];
+ if(existing){currentDay=existing;show("games");window.scrollTo({top:0,behavior:"smooth"});return;}
+ // Sonst den heutigen Termin direkt als neuen Spieltag mit den angemeldeten Spielern starten.
+ show("setup");
+ date.value=a.date;
+ renderPlayers();
+ const participants=Array.isArray(a.participants)?a.participants:[];
+ document.querySelectorAll(".present").forEach(cb=>{
+   const name=state.players[+cb.dataset.i];
+   cb.checked=participants.includes(name);
+ });
+ const selected=[...document.querySelectorAll(".present:checked")];
+ if(selected.length<2){
+   alert("Für heute sind noch nicht mindestens zwei Spieler angemeldet.");
+   return;
+ }
+ createDay();
+}
+function renderMyNextAppointment(){
+ const box=document.getElementById("myNextAppointmentCard"); if(!box)return;
+ const me=getMe();
+ if(!me){box.innerHTML="";return}
+ const now=new Date();
+ const todayStr=today();
+ const appts=(state.appointments||[]).filter(a=>{
+   const participants=Array.isArray(a.participants)?a.participants:[];
+   if(!participants.includes(me)||!a.date||!a.from)return false;
+   // Der eigene heutige Termin bleibt den ganzen Tag sichtbar – auch nach Beginn.
+   if(a.date===todayStr)return true;
+   const start=new Date(a.date+"T"+a.from+":00");
+   return !isNaN(start)&&start>=now;
+ }).sort((a,b)=>(a.date+" "+a.from).localeCompare(b.date+" "+b.from));
+ const a=appts[0];
+ if(!a){box.innerHTML="";return}
+ const isToday=a.date===todayStr;
+ const dt=new Date(a.date+"T12:00:00");
+ const dateText=isToday ? "Heute ist Badminton!" : dt.toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric"});
+
+ // Zahler nur aus den Teilnehmern dieses konkreten Termins bestimmen.
+ const participants=Array.isArray(a.participants)?a.participants:[];
+ const balances=cashBalances();
+ const rankedPayers=participants.map(n=>[n,Number(balances[n]||0)])
+   .sort((x,y)=>x[1]-y[1]);
+ const payer=rankedPayers[0]||null;
+ const payerText=payer
+   ? `<div class="next-appt-payer next-appt-payer-link" role="button" tabindex="0" onclick="event.stopPropagation();openPaymentForAppointment('${String(a.date).replace(/'/g,"\\'")}','${String(payer[0]).replace(/'/g,"\\'")}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();openPaymentForAppointment('${String(a.date).replace(/'/g,"\\'")}','${String(payer[0]).replace(/'/g,"\\'")}')}">💰 <span>Bezahlen muss:</span> <strong>${esc(payer[0])}</strong> <span class="cash-minus">${money(payer[1])}</span><span class="payer-arrow">›</span></div>`
+   : `<div class="next-appt-payer muted">💰 Bezahlen muss: niemand</div>`;
+ const cardAction=isToday ? `startTodayBadmintonFromHome(${a.id})` : `openAppointmentDetails(${a.id})`;
+ const hint=isToday ? "Tippen und Spiel starten ›" : "Tippen für Details ›";
+
+ box.innerHTML=`<div class="card next-appt-card" role="button" tabindex="0" onclick="${cardAction}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${cardAction}}">
+   <div class="small">🏸 ${isToday?"Dein Termin heute":"Dein nächster Termin"}</div>
+   <h2 style="margin:5px 0">${esc(dateText)}</h2>
+   <div><strong>${esc(a.from)}–${esc(a.to)} Uhr${a.food&&a.foodPlace?` + ${esc(a.foodPlace)}`:a.food?` + Essen gehen`:``}</strong></div>
+   ${a.booked?`<div class="small" style="margin-top:6px;color:var(--green)">🎯 ${String(a.court)==="0"?"Court noch unbekannt":a.court?"Court "+esc(a.court):"Court noch unbekannt"}</div>`:""}
+   <div class="small next-appt-people">👥 ${participants.length?participants.map(esc).join(", "):"Noch niemand zugesagt"}</div>
+   ${payerText}
+   <div class="small next-appt-hint">${hint}</div>
+ </div>`;
+}
+
+function forceStandardHomeOrder(){
+ const home=document.getElementById("home");
+ if(!home)return;
+ const next=document.getElementById("myNextAppointmentCard");
+ const personal=document.getElementById("personalCard");
+ const game=document.getElementById("homeGameBlock");
+ if(next)home.prepend(next);
+ if(personal)home.appendChild(personal);
+ if(game)home.appendChild(game);
+}
+function renderHome(){renderTodayCourt();renderMyNextAppointment();renderPersonalHome();renderHeaderGreeting();forceStandardHomeOrder();}
+show("home");
+
+
+let deferredInstallPrompt=null;
+function isStandaloneApp(){return window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true}
+function dismissInstallHint(){localStorage.setItem('badminton_install_hint_dismissed','1');document.getElementById('installHint')?.classList.add('hidden')}
+async function installBadmintonApp(){
+ if(deferredInstallPrompt){deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;document.getElementById('installHint')?.classList.add('hidden');return}
+ const isiOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+ if(isiOS)alert('Auf dem iPhone: Tippe in Safari unten auf Teilen und dann auf „Zum Home-Bildschirm“.');
+ else alert('Öffne das Browser-Menü und wähle „App installieren“ bzw. „Zum Startbildschirm hinzufügen“.');
+}
+function setupInstallHint(){
+ if(isStandaloneApp()||localStorage.getItem('badminton_install_hint_dismissed')==='1')return;
+ const box=document.getElementById('installHint'),txt=document.getElementById('installHintText');if(!box||!txt)return;
+ const isiOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+ txt.textContent=isiOS?'In Safari: Teilen → Zum Home-Bildschirm':'Für schnellen Zugriff direkt auf deinem Startbildschirm.';
+ box.classList.remove('hidden');
+}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;setupInstallHint()});
+
+let pullStartY=0,pullDistance=0,pullTracking=false,pullRefreshing=false;
+function pullIndicator(distance){
+ const el=document.getElementById("pullRefreshIndicator"),txt=document.getElementById("pullRefreshText");
+ if(!el||pullRefreshing)return;
+ if(distance<=8){el.classList.remove("visible");el.style.transform="translate(-50%,-48px)";return}
+ el.classList.add("visible");
+ const y=Math.min(10,distance*.10-5);
+ el.style.transform=`translate(-50%,${y}px)`;
+ txt.textContent=distance>=75?"Loslassen zum Aktualisieren":"Zum Aktualisieren ziehen";
+}
+async function refreshAppFromServer(){
+ if(pullRefreshing)return;
+ pullRefreshing=true;
+ const el=document.getElementById("pullRefreshIndicator"),txt=document.getElementById("pullRefreshText");
+ if(el){el.classList.add("visible","refreshing");el.style.transform="translate(-50%,10px)"}
+ if(txt)txt.textContent="Aktualisiere …";
+ await loadServerState();
+ // Aktuellen Spieltag mit der frisch geladenen Server-Version verbinden.
+ if(currentDay){
+   const fresh=(state.days||[]).find(d=>d.id===currentDay.id);
+   currentDay=fresh||null;
+ }
+ renderHome();renderCashHome();renderAppointments();
+ if(typeof renderStats==="function")renderStats("all");
+ if(!document.getElementById("games").classList.contains("hidden")&&currentDay)renderGames();
+ setTimeout(()=>{
+  pullRefreshing=false;
+  if(el){el.classList.remove("visible","refreshing");el.style.transform="translate(-50%,-48px)"}
+ },500);
+}
+document.addEventListener("touchstart",e=>{
+ if(pullRefreshing||window.scrollY>0||e.touches.length!==1)return;
+ pullStartY=e.touches[0].clientY;pullDistance=0;pullTracking=true;
+},{passive:true});
+document.addEventListener("touchmove",e=>{
+ if(!pullTracking)return;
+ const d=e.touches[0].clientY-pullStartY;
+ if(d<=0){pullTracking=false;pullIndicator(0);return}
+ pullDistance=Math.min(d,110);pullIndicator(pullDistance);
+},{passive:true});
+document.addEventListener("touchend",()=>{
+ if(!pullTracking)return;
+ const shouldRefresh=pullDistance>=75;
+ pullTracking=false;
+ if(shouldRefresh)refreshAppFromServer();else pullIndicator(0);
+ pullDistance=0;
+},{passive:true});
+
+// Aktualisierungsprüfung der installierten iPhone-Web-App: nur HTML abrufen, niemals Daten speichern.
+const BADMINTON_BUILD=document.querySelector('meta[name="badminton-build"]')?.content||'';
+let checkingAppBuild=false;
+async function checkForAppUpdate(){
+ if(checkingAppBuild||!navigator.onLine||document.hidden)return;
+ checkingAppBuild=true;
+ try{
+   const response=await fetch('./index.html?build_check='+Date.now(),{cache:'no-store'});
+   if(!response.ok)return;
+   const html=await response.text();
+   const found=html.match(/<meta\s+name=["']badminton-build["']\s+content=["']([^"']+)["']/i);
+   if(!found||found[1]===BADMINTON_BUILD)return;
+   // Bei einer neuen Version vorher nachfragen, damit laufende Eingaben nicht verloren gehen.
+   if(confirm('Eine neue Version der Badminton-App ist verfügbar. Jetzt aktualisieren?')){
+     const url=new URL(window.location.href);
+     url.searchParams.set('app_version',found[1]);
+     window.location.replace(url.href);
+   }
+ }catch(e){/* Offline: aktuelle Version weiter verwenden. */}
+ finally{checkingAppBuild=false}
+}
+
+window.addEventListener("DOMContentLoaded", async ()=>{
+  const cashDate=document.getElementById("expenseDate");
+  if(cashDate)cashDate.addEventListener("change",()=>{if(!editingExpenseId)prefillExpenseForDate()});
+  const gameDate=document.getElementById("date");
+  if(gameDate)gameDate.addEventListener("change",selectPlayersForDate);
+  const foodCb=document.getElementById("apptFood");
+  if(foodCb)foodCb.addEventListener("change",updateFoodPlaceVisibility);
+  updateFoodPlaceVisibility();
+  updateCourtVisibility();
+  await loadServerState();
+  if(!state.cashOpeningBalances) state.cashOpeningBalances={"Marco":-21.32,"Marcel":-18.71,"Michael":-28.94,"Martin":9.62,"Tim":45.97,"Daniel":2.32,"Florian":2.62,"Karl":8.44};
+  // Beim Öffnen ausschließlich laden – niemals einen veralteten Stand zurückschreiben.
+  fillAppointmentTimes();
+  renderPlayers();
+  renderAppointmentParticipantPicker([]);
+  renderHome();
+  renderCashHome();
+  showFirstUserChoiceIfNeeded();
+  if(typeof refreshPushStatus==="function")refreshPushStatus();
+ if(typeof loadPushPreferences==="function")loadPushPreferences();
+  if(document.getElementById("apptDate")) document.getElementById("apptDate").min=today();
+  if(typeof renderStats==="function") renderStats("all");
+  setInterval(syncReadOnly,5000);
+  setTimeout(checkForAppUpdate,2500);
+  setInterval(checkForAppUpdate,90000);
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden){syncReadOnly();checkForAppUpdate()}});
+});
+
+
+// Push-Benachrichtigungen – nur nach ausdrücklicher Aktivierung pro Gerät.
+function pushMessage(message){for(const id of ['pushStatus','pushStartHelp']){const el=document.getElementById(id);if(el)el.textContent=message}}
+function urlBase64ToUint8Array(base64){const padding='='.repeat((4-base64.length%4)%4);const raw=atob((base64+padding).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from([...raw].map(c=>c.charCodeAt(0)))}
+async function pushRegistration(){if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window))throw new Error('Dieses Gerät unterstützt Web-Push nicht. Auf iPhones die App über Safari zum Home-Bildschirm hinzufügen und von dort öffnen.');return navigator.serviceWorker.register('./sw.js',{scope:'./'})}
+async function refreshPushStatus(){
+ const on=document.getElementById('pushEnable'),off=document.getElementById('pushDisable');if(!on||!off)return;
+ const me=getMe();on.disabled=!me;off.classList.add('hidden');
+ const banner=document.getElementById('pushStartBanner');const start=document.getElementById('pushStartButton');if(start)start.disabled=!me;
+ if(!me){pushMessage('Bitte zuerst unter „Ich bin“ deinen Namen auswählen.');return}
+ if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window)){pushMessage('Auf iPhones: Website in Safari öffnen, „Zum Home-Bildschirm“ wählen und die installierte App starten.');return}
+ try{const reg=await navigator.serviceWorker.getRegistration('./');const sub=reg?await reg.pushManager.getSubscription():null;
+ if(banner)banner.classList.toggle('hidden',!!sub && localStorage.getItem('badminton_push_player')===me);
+ if(sub){off.classList.remove('hidden');pushMessage('Auf diesem Gerät aktiviert. Zugeordnet: '+(localStorage.getItem('badminton_push_player')||'noch nicht bestätigt')+'. Bei Spielerwechsel erneut aktivieren.');}
+ else pushMessage(Notification.permission==='denied'?'Benachrichtigungen sind in den Geräteeinstellungen blockiert.':'Noch nicht aktiviert.');
+ }catch(e){pushMessage('Status konnte nicht ermittelt werden.')}
+}
+async function enableBadmintonPush(){
+ const me=getMe();if(!me){pushMessage('Bitte zuerst deinen Namen auswählen.');return}
+ const button=document.getElementById('pushEnable');if(button)button.disabled=true;const startButton=document.getElementById('pushStartButton');if(startButton)startButton.disabled=true;
+ try{
+  const reg=await pushRegistration();const permission=await Notification.requestPermission();if(permission!=='granted')throw new Error('Benachrichtigungen wurden nicht erlaubt.');
+  const res=await fetch('./push_api.php',{cache:'no-store'});const info=await res.json();if(!res.ok||!info.ok)throw new Error(info.error||'Push-Server nicht erreichbar.');
+  let sub=await reg.pushManager.getSubscription();if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(info.publicKey)});
+  const saved=await fetch('./push_api.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'subscribe',player:me,subscription:sub.toJSON(),preferences:currentPushPreferences()})});const result=await saved.json();if(!saved.ok||!result.ok)throw new Error(result.error||'Speichern fehlgeschlagen.');
+  localStorage.setItem('badminton_push_player',me);pushMessage('Erinnerungen für '+me+' aktiviert!');
+ }catch(e){pushMessage('Aktivierung fehlgeschlagen: '+e.message)}finally{if(button)button.disabled=false;if(startButton)startButton.disabled=false;refreshPushStatus()}
+}
+async function disableBadmintonPush(){
+ try{const reg=await navigator.serviceWorker.getRegistration('./');const sub=reg?await reg.pushManager.getSubscription():null;
+ if(sub){const res=await fetch('./push_api.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'unsubscribe',endpoint:sub.endpoint})});if(!res.ok)throw new Error('Server nicht erreichbar.');await sub.unsubscribe()}
+ localStorage.removeItem('badminton_push_player');pushMessage('Benachrichtigungen deaktiviert.');
+ }catch(e){pushMessage('Deaktivierung fehlgeschlagen: '+e.message)}finally{refreshPushStatus()}
+}
+
+let pollList=[],pollAnswers={},pollCurrent=null,pollExpanded=true,pollHasVoted=false;
+async function pollRequest(action,body){const r=await fetch('poll_api.php'+(body?'':'?action='+encodeURIComponent(action)),body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...body})}:{cache:'no-store'});const j=await r.json();if(!r.ok||!j.ok)throw Error(j.error||'Anfrage fehlgeschlagen');return j}
+function pollDate(d){return new Date(d+'T12:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'})}
+function pollCloseDate(d){return new Date(d.replace(' ','T')).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}
+async function loadPolls(){const el=document.getElementById('pollContent');if(!el)return;try{const j=await pollRequest('list');pollList=j.polls||[];const active=pollList.find(p=>p.status==='open'&&new Date(p.closes_at.replace(' ','T'))>new Date());const previous=pollCurrent;pollCurrent=active?.id||null;if(previous!==pollCurrent)pollExpanded=true;const homeCard=document.getElementById('pollHomeCard');if(homeCard)homeCard.style.display=active?'block':'none';await loadMyPollVote();renderPolls()}catch(e){el.textContent='Umfragen konnten nicht geladen werden: '+e.message}}
+async function loadMyPollVote(){const p=pollList.find(p=>p.id===pollCurrent),me=getMe();if(!p||!me){pollAnswers={};pollHasVoted=false;return}try{const r=await fetch('poll_api.php?action=myvote&poll_id='+p.id+'&player='+encodeURIComponent(me),{cache:'no-store'});const j=await r.json();pollAnswers=j.answers||{};pollHasVoted=[0,1,2].every(i=>Array.isArray(pollAnswers[i]));if(pollHasVoted)pollExpanded=false}catch(e){pollAnswers={};pollHasVoted=false}}
+function pollToggleExpanded(){pollExpanded=!pollExpanded;renderPolls()}
+function renderPolls(){const el=document.getElementById('pollContent');if(!el)return;const section=document.getElementById('pollSection');const p=pollList.find(p=>p.id===pollCurrent&&p.status==='open'&&new Date(p.closes_at.replace(' ','T'))>new Date());if(section)section.style.display=p?'':'none';if(!p){el.innerHTML='';renderPollApproval();return}const me=getMe(),open=true;let s=`<button type="button" class="secondary" style="width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:8px" onclick="pollToggleExpanded()"><span><strong>🏸 Terminabstimmung</strong><br><small>${pollHasVoted?'✅ Du hast abgestimmt':'🟢 Jetzt abstimmen'} · ${p.voters.length} von ${p.total} Spielern abgestimmt</small></span><span style="font-size:21px">${pollExpanded?'⌃':'⌄'}</span></button>`;
+const missing=(state.players||[]).filter(n=>!p.voters.includes(n));s+=`<div class="small" style="font-size:11px;margin-top:6px;opacity:.85">${missing.length?'Fehlen noch: '+esc(missing.join(', ')):'Alle haben abgestimmt ✓'}</div>`;if(!pollExpanded){s+='<div class="small" style="margin-top:9px">Tippe zum Aufklappen, um alle Zusagen und Namen zu sehen'+(pollHasVoted?' oder deine Abstimmung zu ändern':'')+'.</div>';el.innerHTML=s;return}
+s+=`<div class="small" style="margin-top:12px">Ende: ${esc(pollCloseDate(p.closes_at))} Uhr · ${p.voters.length} von ${p.total} Spielern abgestimmt</div>`;
+if(!me)s+='<div class="notice">Bitte zuerst auf der Startseite deinen Spielernamen auswählen.</div>';
+p.weeks.forEach((week,i)=>{const chosen=pollAnswers[i]||[];const none=Object.prototype.hasOwnProperty.call(pollAnswers,i)&&chosen.length===0;s+=`<div style="border:1px solid #315c51;background:#10292b;border-radius:12px;margin-top:10px;padding:9px"><strong style="color:#7df2ac;font-size:14px">Kalenderwoche ${pollWeekNumber(week[0])}</strong><div class="small" style="margin:5px 0">Wähle alle passenden Tage:</div>`;week.forEach(day=>{const d=(p.results[i]||[]).find(x=>x.date===day);s+=`<label class="appt-option" style="min-height:35px;margin-top:3px;padding:6px 8px;font-size:12px"><input type="checkbox" ${chosen.includes(day)?'checked':''} ${!me?'disabled':''} onchange="pollToggle(${i},'${day}',this.checked)"><span>${esc(pollDate(day))} · ${d?.count||0} können<br><small style="opacity:.8;font-size:10px">${d?.players?.length?esc(d.players.join(", ")):"Noch keine Zusagen"}</small></span></label>`});s+=`<label class="appt-option" style="min-height:35px;margin-top:3px;padding:6px 8px;font-size:12px"><input type="checkbox" ${none?'checked':''} ${!me?'disabled':''} onchange="pollNone(${i},this.checked)"><span>Ich kann an keinem der Tage<br><small style="opacity:.8;font-size:10px">${(p.none?.[i]||[]).length?esc(p.none[i].join(", ")):"Noch niemand"}</small></span></label>`;s+='</div>'});
+if(me)s+='<button class="primary" style="width:100%;margin-top:14px" onclick="pollSave()">💾 '+(pollHasVoted?'Abstimmung ändern':'Meine Abstimmung speichern')+'</button>';
+s+='<button class="secondary" style="width:100%;margin-top:8px" onclick="pollShare()">📲 Umfrage in WhatsApp teilen</button>';
+el.innerHTML=s;renderPollApproval();
+}
+function pollWeekNumber(d){const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+4-(x.getDay()||7));const y=new Date(x.getFullYear(),0,1);return Math.ceil((((x-y)/86400000)+1)/7)}
+function pollToggle(i,day,checked){const arr=pollAnswers[i]||[];pollAnswers[i]=checked?[...new Set([...arr,day])]:arr.filter(x=>x!==day);renderPolls()}
+function pollNone(i,checked){if(checked)pollAnswers[i]=[];else delete pollAnswers[i];renderPolls()}
+async function pollSave(){const p=pollList.find(p=>p.id===pollCurrent),me=getMe();if(!p||!me)return;const a=[0,1,2].map(i=>pollAnswers[i]);if(a.some(x=>!Array.isArray(x))){alert('Bitte für alle drei Wochen abstimmen oder „Ich kann an keinem der Tage“ wählen.');return}try{await pollRequest('vote',{poll_id:p.id,player:me,answers:a});pollHasVoted=true;pollExpanded=false;await loadPolls()}catch(e){alert(e.message)}}
+function pollShare(){const p=pollList.find(p=>p.id===pollCurrent);if(!p)return;const url=new URL(location.href);url.hash='umfrage-'+p.id;sendAppointmentToWhatsApp('🏸 Neue Badminton-Terminabstimmung!\nBitte für alle drei Kalenderwochen abstimmen. Ende: '+new Date(p.closes_at.replace(' ','T')).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})+' Uhr.\n'+url.href)}
+let pollApprovalChoices={},pollApprovalId=null;
+function pollFullDate(d){return new Date(d+'T12:00:00').toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'})}
+function renderPollApproval(){
+ const sec=document.getElementById('pollApprovalSection'),el=document.getElementById('pollApprovalContent');if(!sec||!el)return;
+ const p=pollList.find(x=>x.needs_approval===true);
+ const confirmed=pollList.find(x=>x.status==='closed'&&Array.isArray(x.approved?.dates));
+ const me=getMe();if(!p&&!confirmed){sec.style.display='none';return}
+ sec.style.display='';
+ if(!p){const dates=confirmed.approved?.dates||[];el.innerHTML='<h2>🏸 Termine stehen fest</h2><div class="small">Umfrage abgeschlossen und bestätigt.</div>'+dates.filter(Boolean).map(d=>'<div style="margin-top:8px">📅 '+esc(pollFullDate(d))+'</div>').join('')+'<button class="secondary" style="width:100%;margin-top:12px" onclick="pollShareConfirmed()">📲 Termine per WhatsApp teilen</button>';return}
+ if(pollApprovalId!==p.id){pollApprovalId=p.id;pollApprovalChoices={};p.weeks.forEach((week,i)=>{const best=(p.results[i]||[]).find(d=>d.count>=2&&new Date(d.date+'T18:30:00')>new Date());pollApprovalChoices[i]=best?.date||''})}
+ let s='<h2>🏸 Umfrage abgeschlossen</h2><div class="small">Die Vorschläge sind nach Zusagen sortiert. '+(me==='Marco'?'Du kannst die Termine ändern und bestätigen.':'Marco wählt die endgültigen Termine aus.')+'</div>';
+ p.weeks.forEach((week,i)=>{s+='<div style="border:1px solid #315c51;border-radius:14px;padding:12px;margin-top:12px"><strong>Kalenderwoche '+pollWeekNumber(week[0])+'</strong>';
+ const days=p.results[i]||[];days.forEach((d,j)=>{const checked=pollApprovalChoices[i]===d.date;s+='<label class="appt-option" style="min-height:50px"><input type="radio" name="pollApproval'+i+'" value="'+esc(d.date)+'" '+(checked?'checked':'')+' '+(me==='Marco'?'':'disabled')+' onchange="pollApprovalChoices['+i+']=this.value"><span>'+(j===0?'⭐ ':'')+esc(pollFullDate(d.date))+' · '+d.count+' Zusagen<br><small>'+esc(d.players?.join(', ')||'Keine Zusagen')+'</small></span></label>'});
+ s+='<label class="appt-option"><input type="radio" name="pollApproval'+i+'" value="" '+(pollApprovalChoices[i]===''?'checked':'')+' '+(me==='Marco'?'':'disabled')+' onchange="pollApprovalChoices['+i+']=this.value"><span>Keinen Termin erstellen</span></label></div>'});
+ if(me==='Marco')s+='<button class="primary" style="width:100%;margin-top:14px" onclick="pollApprove()">✓ Ausgewählte Termine bestätigen</button>';
+ el.innerHTML=s;
+}
+async function pollApprove(){const p=pollList.find(x=>x.id===pollApprovalId);if(!p||getMe()!=='Marco')return;const dates=[0,1,2].map(i=>pollApprovalChoices[i]||'');if(!confirm('Diese Termine jetzt verbindlich erstellen?'))return;try{await pollRequest('approve',{poll_id:p.id,player:'Marco',choices:dates});await loadPolls();renderAppointments();alert('Termine bestätigt!')}catch(e){alert('Bestätigung fehlgeschlagen: '+e.message)}}
+function pollShareConfirmed(){const p=pollList.find(x=>x.status==='closed'&&x.approved?.dates);if(!p)return;const dates=p.approved.dates.filter(Boolean);sendAppointmentToWhatsApp('🏸 Unsere nächsten Badminton-Termine\n\n'+(dates.length?dates.map(d=>'📅 '+pollFullDate(d)).join('\n'):'Diesmal wurden keine Termine ausgewählt.')+'\n\nDie Termine stehen fest! 😁')}
+window.addEventListener('hashchange',()=>{if(location.hash.startsWith('#umfrage-')){show('appointments');const id=Number(location.hash.slice(9));if(id&&pollList.some(p=>p.id===id&&p.status==='open')){pollCurrent=id;loadMyPollVote().then(renderPolls)}}});
+setTimeout(()=>{if(location.hash.startsWith('#umfrage-'))show('appointments')},1300);
+
+</script>
+<script>
+/* iOS Safari/PWA: zusätzliche Absicherung gegen unbeabsichtigtes Gesten-Zoomen. */
+document.addEventListener('gesturestart', function(e){ e.preventDefault(); }, {passive:false});
+document.addEventListener('gesturechange', function(e){ e.preventDefault(); }, {passive:false});
+document.addEventListener('gestureend', function(e){ e.preventDefault(); }, {passive:false});
+</script>
+</body>
+</html>

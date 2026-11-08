@@ -1,0 +1,9 @@
+config.php
+push_keys.json
+.env
+.env.*
+*.sql
+*.log
+vendor/
+backup/
+backups/
