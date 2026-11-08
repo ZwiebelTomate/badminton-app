@@ -840,6 +840,8 @@ nav{background:rgba(5,17,21,.96)!important;border-top:1px solid #18363a!importan
 .settings-gear{background:#102437f2!important;border-color:#23464a!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 
 
+#manualRoundForm{position:fixed;inset:0;width:calc(100% - 28px)!important;max-width:440px!important;max-height:calc(100dvh - 40px);margin:auto!important;overflow:auto;color:var(--text);border-color:var(--green);box-shadow:0 18px 55px rgba(0,0,0,.45)}
+#manualRoundForm::backdrop{background:rgba(0,0,0,.7)}
 #manualRoundForm select{width:100%;background:#091a29;color:var(--text);border:1px solid var(--line);border-radius:11px;padding:12px;font-size:14px;min-width:0}#manualRoundForm .grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 #statsRangeButtons button.stats-range-selected{
  background:#197c68!important;color:#fff!important;border-color:#29bd9c!important;
@@ -949,10 +951,10 @@ html, body { touch-action: pan-x pan-y; }
 
 <div id="gameList"></div><div id="parallelGames"></div>
 <div class="card" style="margin-top:10px"><button class="secondary" style="width:100%" onclick="openManualRoundForm()">＋ Spiel manuell hinzufügen</button><div class="small" style="margin-top:7px">Teams selbst zusammenstellen oder ein gespieltes Match nachtragen. Noch offene Runden kannst du verschieben.</div></div>
-<div id="manualRoundForm" class="card hidden" style="border-color:var(--green)"><h3 id="manualRoundTitle">Spiel manuell hinzufügen</h3><div class="small" style="margin-bottom:10px">Spieler auswählen. Ein freies Feld bedeutet: Dieser Platz bleibt leer.</div>
+<dialog id="manualRoundForm" class="card" aria-labelledby="manualRoundTitle" oncancel="event.preventDefault();closeManualRoundForm()"><h3 id="manualRoundTitle">Spiel manuell hinzufügen</h3><div class="small" style="margin-bottom:10px">Spieler auswählen. Ein freies Feld bedeutet: Dieser Platz bleibt leer.</div>
 <div class="grid2"><div><label>Team Blau – Spieler 1</label><select id="manualBlue1"></select></div><div><label>Team Blau – Spieler 2</label><select id="manualBlue2"></select></div><div><label>Team Rot – Spieler 1</label><select id="manualRed1"></select></div><div><label>Team Rot – Spieler 2</label><select id="manualRed2"></select></div></div>
 <label style="margin-top:12px">Ergebnis</label><select id="manualRoundWinner"><option value="">Noch nicht gespielt</option><option value="0">Team Blau hat gewonnen</option><option value="1">Team Rot hat gewonnen</option></select>
-<div class="grid2" style="margin-top:12px"><button onclick="saveManualRound()">✓ Spiel übernehmen</button><button class="secondary" onclick="closeManualRoundForm()">Abbrechen</button></div></div><button id="undoRoundBtn" class="secondary hidden" style="width:calc(100% - 28px);margin:8px 14px 0" onclick="undoLastRound()">↩️ Letzte Runde zurück</button><button id="addGameBtn" class="add-game-btn" onclick="addAnotherGame()"><span class="add-game-plus">＋</span><span>Weiteres Spiel</span></button><div class="card"><button id="manualSaveBtn" onclick="manualSave()" style="width:100%">💾 Ergebnisse speichern</button><div id="saveStatus" class="small" style="text-align:center;margin-top:8px"></div></div>
+<div class="grid2" style="margin-top:12px"><button onclick="saveManualRound()">✓ Spiel übernehmen</button><button class="secondary" onclick="closeManualRoundForm()">Abbrechen</button></div></dialog><button id="undoRoundBtn" class="secondary hidden" style="width:calc(100% - 28px);margin:8px 14px 0" onclick="undoLastRound()">↩️ Letzte Runde zurück</button><button id="addGameBtn" class="add-game-btn" onclick="addAnotherGame()"><span class="add-game-plus">＋</span><span>Weiteres Spiel</span></button><div class="card"><button id="manualSaveBtn" onclick="manualSave()" style="width:100%">💾 Ergebnisse speichern</button><div id="saveStatus" class="small" style="text-align:center;margin-top:8px"></div></div>
 <div class="delete-day-wrap"><button class="danger delete-day-small" onclick="deleteCurrentDay()">🗑️ Spielplan löschen</button></div>
 </section>
 
@@ -2018,10 +2020,11 @@ function openManualRoundForm(roundIndex=null){
  });
  document.getElementById("manualRoundWinner").value="";
  document.getElementById("manualRoundTitle").textContent=old?"Offene Runde "+(manualEditingRound+1)+" ändern":"Spiel manuell hinzufügen";
- document.getElementById("manualRoundForm").classList.remove("hidden");
- document.getElementById("manualRoundForm").scrollIntoView({behavior:"smooth",block:"center"});
+ const dialog=document.getElementById("manualRoundForm");
+ if(!dialog.open)dialog.showModal();
+ document.getElementById("manualBlue1").focus({preventScroll:true});
 }
-function closeManualRoundForm(){document.getElementById("manualRoundForm").classList.add("hidden");manualEditingRound=null}
+function closeManualRoundForm(){const dialog=document.getElementById("manualRoundForm");if(dialog.open)dialog.close();manualEditingRound=null}
 async function saveManualRound(){
  if(!currentDay)return;
  const get=id=>document.getElementById(id).value;
