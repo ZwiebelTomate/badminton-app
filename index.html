@@ -2640,7 +2640,7 @@ function pollFullDate(d){return new Date(d+'T12:00:00').toLocaleDateString('de-D
 function renderPollApproval(){
  const sec=document.getElementById('pollApprovalSection'),el=document.getElementById('pollApprovalContent');if(!sec||!el)return;
  const p=pollList.find(x=>x.needs_approval===true);
- const confirmed=pollList.find(x=>x.status==='closed'&&Array.isArray(x.approved?.dates));
+ const confirmed=pollList.find(x=>x.status==='closed'&&Array.isArray(x.approved?.dates)&&Number.isFinite(new Date(String(x.closes_at).replace(' ','T')).getTime())&&Date.now()<new Date(String(x.closes_at).replace(' ','T')).getTime()+24*60*60*1000);
  const me=getMe();if(!p&&!confirmed){sec.style.display='none';return}
  sec.style.display='';
  if(!p){const dates=confirmed.approved?.dates||[];el.innerHTML='<h2>🏸 Termine stehen fest</h2><div class="small">Umfrage abgeschlossen und bestätigt.</div>'+dates.filter(Boolean).map(d=>'<div style="margin-top:8px">📅 '+esc(pollFullDate(d))+'</div>').join('')+'<button class="secondary" style="width:100%;margin-top:12px" onclick="pollShareConfirmed()">📲 Termine per WhatsApp teilen</button>';return}
@@ -2653,7 +2653,7 @@ function renderPollApproval(){
  el.innerHTML=s;
 }
 async function pollApprove(){const p=pollList.find(x=>x.id===pollApprovalId);if(!p||getMe()!=='Marco')return;const dates=[0,1,2].map(i=>pollApprovalChoices[i]||'');if(!confirm('Diese Termine jetzt verbindlich erstellen?'))return;try{await pollRequest('approve',{poll_id:p.id,player:'Marco',choices:dates});await loadPolls();renderAppointments();alert('Termine bestätigt!')}catch(e){alert('Bestätigung fehlgeschlagen: '+e.message)}}
-function pollShareConfirmed(){const p=pollList.find(x=>x.status==='closed'&&x.approved?.dates);if(!p)return;const dates=p.approved.dates.filter(Boolean);sendAppointmentToWhatsApp('🏸 Unsere nächsten Badminton-Termine\n\n'+(dates.length?dates.map(d=>'📅 '+pollFullDate(d)).join('\n'):'Diesmal wurden keine Termine ausgewählt.')+'\n\nDie Termine stehen fest! 😁')}
+function pollShareConfirmed(){const p=pollList.find(x=>x.status==='closed'&&Array.isArray(x.approved?.dates)&&Number.isFinite(new Date(String(x.closes_at).replace(' ','T')).getTime())&&Date.now()<new Date(String(x.closes_at).replace(' ','T')).getTime()+24*60*60*1000);if(!p)return;const dates=p.approved.dates.filter(Boolean);sendAppointmentToWhatsApp('🏸 Unsere nächsten Badminton-Termine\n\n'+(dates.length?dates.map(d=>'📅 '+pollFullDate(d)).join('\n'):'Diesmal wurden keine Termine ausgewählt.')+'\n\nDie Termine stehen fest! 😁')}
 window.addEventListener('hashchange',()=>{if(location.hash.startsWith('#umfrage-')){show('appointments');const id=Number(location.hash.slice(9));if(id&&pollList.some(p=>p.id===id&&p.status==='open')){pollCurrent=id;loadMyPollVote().then(renderPolls)}}});
 setTimeout(()=>{if(location.hash.startsWith('#umfrage-'))show('appointments')},1300);
 
