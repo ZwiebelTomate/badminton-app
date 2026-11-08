@@ -8,6 +8,11 @@ on:
         type: boolean
         required: true
         default: true
+      html_freigeben:
+        description: 'index.html hochladen (standardmäßig aus)'
+        type: boolean
+        required: true
+        default: false
       php_freigeben:
         description: 'PHP-Dateien zusätzlich hochladen (erst nach Prüfung der Live-Version!)'
         type: boolean
@@ -36,8 +41,8 @@ jobs:
         if: ${{ inputs.nur_pruefen == false }}
         run: sudo apt-get update -qq && sudo apt-get install -y lftp
 
-      - name: Dateien sicher hochladen (ohne Löschungen)
-        if: ${{ inputs.nur_pruefen == false }}
+      - name: index.html separat veröffentlichen (nur bei Freigabe)
+        if: ${{ inputs.nur_pruefen == false && inputs.html_freigeben == true }}
         env:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         shell: bash
