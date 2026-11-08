@@ -1716,7 +1716,7 @@ function appleCalendarAppointment(id){
  document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
 
-function makeRound(ps,partnerCounts,opponentCounts,rests,lastRest){
+function makeRound(ps,partnerCounts,opponentCounts,rests,lastRest,previousRounds=[]){
  if(ps.length===2){const flip=!!(currentDay && currentDay.rounds && currentDay.rounds.length%2);return {teams:flip?[[ps[1]],[ps[0]]]:[[ps[0]],[ps[1]]],rest:[]};}
  if(ps.length===3){
    let best=null,bestScore=Infinity;
@@ -1730,7 +1730,7 @@ function makeRound(ps,partnerCounts,opponentCounts,rests,lastRest){
    return best;
  }
  // Bei genau vier aktiven Spielern immer denselben fairen Dreier-Zyklus:
- // AB gegen CD, AC gegen BD, AD gegen BC – danach wieder von vorne.
+ // Die erste tatsächlich gewählte Paarung bestimmt den Beginn des Zyklus.
  // Keine Zufallsentscheidung beim Gleichstand, damit Runde 4 = Runde 1 ist.
  if(ps.length===4){
    const layouts=[
@@ -1738,6 +1738,14 @@ function makeRound(ps,partnerCounts,opponentCounts,rests,lastRest){
      [[ps[0],ps[2]],[ps[1],ps[3]]],
      [[ps[0],ps[3]],[ps[1],ps[2]]]
    ];
+   const first=previousRounds.find(r=>r.teams?.length===2 &&
+     r.teams.every(t=>t.length===2) && new Set(r.teams.flat()).size===4 &&
+     r.teams.flat().every(p=>ps.includes(p)));
+   if(first){
+     const firstIndex=layouts.findIndex(teams=>teams.some(t=>pair(...t)===pair(...first.teams[0])));
+     layouts.splice(firstIndex,1);
+     layouts.unshift(first.teams.map(t=>[...t]));
+   }
    let bestIndex=0,lowest=Infinity;
    for(let i=0;i<layouts.length;i++){
      const teams=layouts[i];
@@ -1876,7 +1884,7 @@ function buildNextRoundPreview(){
    old.rest.forEach(p=>rests[p]=(rests[p]||0)+1);
    lastRest=new Set(old.rest);
  }
- const r=makeRound(playing,partnerCounts,opponentCounts,rests,lastRest);
+ const r=makeRound(playing,partnerCounts,opponentCounts,rests,lastRest,currentDay.rounds);
  return {teams:r.teams,rest:[...new Set([...requested,...r.rest])],winner:null,skipped:false};
 }
 
@@ -2665,4 +2673,4 @@ document.addEventListener('gesturechange', function(e){ e.preventDefault(); }, {
 document.addEventListener('gestureend', function(e){ e.preventDefault(); }, {passive:false});
 </script>
 </body>
-</html>
+</html>
