@@ -36,7 +36,6 @@ function adminAuthorized(array $body): bool {
     return $password !== ''
         && hash_equals($password, (string)($body['admin_password'] ?? ''));
 }
-}
 function normalized($v): string { return json_encode($v, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); }
 function protectedChange(array $old, array $new): bool {
     if (normalized($old['cashOpeningBalances'] ?? []) !== normalized($new['cashOpeningBalances'] ?? [])) return true;
