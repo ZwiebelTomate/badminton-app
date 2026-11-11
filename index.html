@@ -1028,6 +1028,10 @@ html, body { touch-action: pan-x pan-y; }
 <h2>🗳️ Terminabstimmung</h2>
 <div id="pollContent" class="small">Umfragen werden geladen …</div>
 </div>
+<div class="card" style="padding:10px 14px">
+  <button type="button" class="secondary" id="pollHistoryToggle" style="width:100%;text-align:left;font-size:12px;padding:8px 10px" onclick="togglePollHistory()" aria-expanded="false">🕘 Letzte Umfragen ⌄</button>
+  <div id="pollHistoryContent" class="small" style="display:none;margin-top:10px"></div>
+</div>
 <div class="card">
   <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
     <div><h2 style="margin:0">Nächste Termine</h2><div class="small">Gemeinsame Badminton-Termine für alle.</div>
@@ -2652,7 +2656,40 @@ let pollList=[],pollAnswers={},pollCurrent=null,pollExpanded=true,pollHasVoted=f
 async function pollRequest(action,body){const r=await fetch('poll_api.php'+(body?'':'?action='+encodeURIComponent(action)),body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...body})}:{cache:'no-store'});const j=await r.json();if(!r.ok||!j.ok)throw Error(j.error||'Anfrage fehlgeschlagen');return j}
 function pollDate(d){return new Date(d+'T12:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'})}
 function pollCloseDate(d){return new Date(d.replace(' ','T')).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}
-async function loadPolls(){const el=document.getElementById('pollContent');if(!el)return;try{const j=await pollRequest('list');pollList=j.polls||[];const active=pollList.find(p=>p.status==='open'&&new Date(p.closes_at.replace(' ','T'))>new Date());const previous=pollCurrent;pollCurrent=active?.id||null;if(previous!==pollCurrent)pollExpanded=true;const homeCard=document.getElementById('pollHomeCard');if(homeCard)homeCard.style.display=active?'block':'none';await loadMyPollVote();renderPolls()}catch(e){el.textContent='Umfragen konnten nicht geladen werden: '+e.message}}
+let pollHistoryVisible=false;
+function togglePollHistory(){pollHistoryVisible=!pollHistoryVisible;renderPollHistory()}
+function renderPollHistory(){
+ const btn=document.getElementById('pollHistoryToggle'),box=document.getElementById('pollHistoryContent');
+ if(!btn||!box)return;
+ const past=pollList.filter(p=>p.status==='closed'||(p.status==='open'&&new Date(String(p.closes_at).replace(' ','T'))<=new Date())).slice(0,5);
+ btn.textContent='🕘 Letzte Umfragen'+(past.length?' ('+past.length+')':'')+(pollHistoryVisible?' ⌃':' ⌄');
+ btn.setAttribute('aria-expanded',String(pollHistoryVisible));
+ box.style.display=pollHistoryVisible?'':'none';
+ if(!pollHistoryVisible)return;
+ if(!past.length){box.innerHTML='<div class="small">Noch keine abgeschlossenen Umfragen vorhanden.</div>';return}
+ box.innerHTML=past.map(p=>{
+   const weeks=Array.isArray(p.weeks)?p.weeks:[];
+   const approved=Array.isArray(p.approved?.dates)?p.approved.dates:[];
+   const entries=weeks.map((week,i)=>{
+     const results=Array.isArray(p.results?.[i])?p.results[i]:[];
+     return '<div style="margin-top:9px"><strong>KW '+(week?.length?pollWeekNumber(week[0]):'?')+'</strong>'+
+       results.map(d=>{
+         const selected=approved.includes(d.date);
+         const appt=selected?(state.appointments||[]).find(a=>a.date===d.date):null;
+         return '<div style="margin:5px 0;padding:6px 8px;border:1px solid #315c51;border-radius:8px;font-size:12px">'+
+           (selected?'✓ ':'')+esc(pollDate(d.date))+' · '+Number(d.count||0)+' Zusagen'+
+           '<div style="opacity:.8;font-size:11px">'+esc((d.players||[]).join(', ')||'Keine Zusagen')+'</div>'+
+           (appt?'<button type="button" class="secondary" style="font-size:11px;padding:5px 8px;margin-top:5px" onclick="editAppointment('+Number(appt.id)+')">✏️ Termin bearbeiten</button>':'')+
+           '</div>';
+       }).join('')+'</div>';
+   }).join('');
+   return '<div style="border-top:1px solid #315c51;padding:10px 0">'+
+     '<strong>Umfrage bis '+esc(pollCloseDate(p.closes_at))+' Uhr</strong>'+
+     '<div style="font-size:11px;opacity:.8">'+(Array.isArray(p.voters)?p.voters.length:0)+' von '+Number(p.total||0)+' Spielern abgestimmt</div>'+
+     entries+'</div>';
+ }).join('')+'<div style="font-size:11px;opacity:.75;margin-top:8px">Abgeschlossene Abstimmungen sind zur Ansicht gespeichert. Neue Stimmen oder eine erneute Freigabe erfordern eine Erweiterung der Serverfunktion.</div>';
+}
+async function loadPolls(){const el=document.getElementById('pollContent');if(!el)return;try{const j=await pollRequest('list');pollList=j.polls||[];const active=pollList.find(p=>p.status==='open'&&new Date(p.closes_at.replace(' ','T'))>new Date());const previous=pollCurrent;pollCurrent=active?.id||null;if(previous!==pollCurrent)pollExpanded=true;const homeCard=document.getElementById('pollHomeCard');if(homeCard)homeCard.style.display=active?'block':'none';await loadMyPollVote();renderPolls();renderPollHistory()}catch(e){el.textContent='Umfragen konnten nicht geladen werden: '+e.message}}
 async function loadMyPollVote(){const p=pollList.find(p=>p.id===pollCurrent),me=getMe();if(!p||!me){pollAnswers={};pollHasVoted=false;return}try{const r=await fetch('poll_api.php?action=myvote&poll_id='+p.id+'&player='+encodeURIComponent(me),{cache:'no-store'});const j=await r.json();pollAnswers=j.answers||{};pollHasVoted=[0,1,2].every(i=>Array.isArray(pollAnswers[i]));if(pollHasVoted)pollExpanded=false}catch(e){pollAnswers={};pollHasVoted=false}}
 function pollToggleExpanded(){pollExpanded=!pollExpanded;renderPolls()}
 function renderPolls(){const el=document.getElementById('pollContent');if(!el)return;const section=document.getElementById('pollSection');const p=pollList.find(p=>p.id===pollCurrent&&p.status==='open'&&new Date(p.closes_at.replace(' ','T'))>new Date());if(section)section.style.display=p?'':'none';if(!p){el.innerHTML='';renderPollApproval();return}const me=getMe(),open=true;let s=`<button type="button" class="secondary" style="width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:8px" onclick="pollToggleExpanded()"><span><strong>🏸 Terminabstimmung</strong><br><small>${pollHasVoted?'✅ Du hast abgestimmt':'🟢 Jetzt abstimmen'} · ${p.voters.length} von ${p.total} Spielern abgestimmt</small></span><span style="font-size:21px">${pollExpanded?'⌃':'⌄'}</span></button>`;
