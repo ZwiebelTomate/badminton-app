@@ -821,6 +821,10 @@ nav button.active{color:#55ed83!important}
 #home .card{padding:17px!important}
 #homeDate{font-size:19px!important}
 
+/* Gleiche blaue Hervorhebung für die drei Spielaktionen. */
+.game-blue-action{background:#1769b4!important;border-color:#338cdb!important;color:#fff!important}
+.game-blue-action:hover{background:#207dcf!important}
+
 /* Klassischer dunkler Look – ohne Foto-Hintergrund */
 html{background:#061016!important}
 body{
@@ -950,11 +954,11 @@ html, body { touch-action: pan-x pan-y; }
 </div>
 
 <div id="gameList"></div><div id="parallelGames"></div>
-<div class="card" style="margin-top:10px"><button class="secondary" style="width:100%" onclick="openManualRoundForm()">＋ Spiel manuell hinzufügen</button><div class="small" style="margin-top:7px">Teams selbst zusammenstellen oder ein gespieltes Match nachtragen. Noch offene Runden kannst du verschieben.</div></div>
+<div class="card" style="margin-top:10px"><button class="secondary game-blue-action" style="width:100%" onclick="openManualRoundForm()">＋ Spiel manuell hinzufügen</button><div class="small" style="margin-top:7px">Teams selbst zusammenstellen oder ein gespieltes Match nachtragen. Noch offene Runden kannst du verschieben.</div></div>
 <dialog id="manualRoundForm" class="card" aria-labelledby="manualRoundTitle" oncancel="event.preventDefault();closeManualRoundForm()"><h3 id="manualRoundTitle">Spiel manuell hinzufügen</h3><div class="small" style="margin-bottom:10px">Spieler auswählen. Ein freies Feld bedeutet: Dieser Platz bleibt leer.</div>
 <div class="grid2"><div><label>Team Blau – Spieler 1</label><select id="manualBlue1"></select></div><div><label>Team Blau – Spieler 2</label><select id="manualBlue2"></select></div><div><label>Team Rot – Spieler 1</label><select id="manualRed1"></select></div><div><label>Team Rot – Spieler 2</label><select id="manualRed2"></select></div></div>
 <label style="margin-top:12px">Ergebnis</label><select id="manualRoundWinner"><option value="">Noch nicht gespielt</option><option value="0">Team Blau hat gewonnen</option><option value="1">Team Rot hat gewonnen</option></select>
-<div class="grid2" style="margin-top:12px"><button onclick="saveManualRound()">✓ Spiel übernehmen</button><button class="secondary" onclick="closeManualRoundForm()">Abbrechen</button></div></dialog><button id="undoRoundBtn" class="secondary hidden" style="width:calc(100% - 28px);margin:8px 14px 0" onclick="undoLastRound()">↩️ Letzte Runde zurück</button><button id="addGameBtn" class="add-game-btn secondary" onclick="addAnotherGame()"><span class="add-game-plus">＋</span><span>Weiteres Spiel</span></button><div class="card"><button id="manualSaveBtn" class="secondary" onclick="manualSave()" style="width:100%">💾 Ergebnisse speichern</button><div id="saveStatus" class="small" style="text-align:center;margin-top:8px"></div></div>
+<div class="grid2" style="margin-top:12px"><button onclick="saveManualRound()">✓ Spiel übernehmen</button><button class="secondary" onclick="closeManualRoundForm()">Abbrechen</button></div></dialog><button id="undoRoundBtn" class="secondary hidden" style="width:calc(100% - 28px);margin:8px 14px 0" onclick="undoLastRound()">↩️ Letzte Runde zurück</button><button id="addGameBtn" class="add-game-btn secondary game-blue-action" onclick="addAnotherGame()"><span class="add-game-plus">＋</span><span>Weiteres Spiel</span></button><div class="card"><button id="manualSaveBtn" class="secondary game-blue-action" onclick="manualSave()" style="width:100%">💾 Ergebnisse speichern</button><div id="saveStatus" class="small" style="text-align:center;margin-top:8px"></div></div>
 <div class="delete-day-wrap"><button class="danger delete-day-small" onclick="deleteCurrentDay()">🗑️ Spielplan löschen</button></div>
 </section>
 
@@ -1093,6 +1097,12 @@ let pendingWrites=0;
 let saveQueue=Promise.resolve();
 let lastSyncedState=null;
 function cloneState(v){return JSON.parse(JSON.stringify(v))}
+function comparableState(v){
+  const copy=cloneState(v);
+  // Die Vorschau ist nur für die Anzeige und darf die Synchronisierung nicht blockieren.
+  for(const day of copy.days||[])delete day._nextRoundPreview;
+  return JSON.stringify(copy);
+}
 async function performSafeSave(){
   pendingWrites++;
   try{
@@ -1133,15 +1143,25 @@ async function syncReadOnly(){
     const result=await response.json();
     if(!result.ok||!result.state||!result.revision||result.revision===serverRevision)return;
     // Niemals ungespeicherte lokale Änderungen durch einen Abruf überschreiben.
-    if(lastSyncedState&&JSON.stringify(state)!==JSON.stringify(lastSyncedState))return;
+    if(lastSyncedState&&comparableState(state)!==comparableState(lastSyncedState))return;
     state=result.state;
     serverRevision=result.revision;
     lastSyncedState=cloneState(state);
+    const wasViewingGames=!document.getElementById('games').classList.contains('hidden');
+    let remotelyFinished=false;
     if(currentDay){
-      currentDay=(state.days||[]).find(d=>d.id===currentDay.id)||null;
-      if(currentDay?.archived===true)currentDay=null;
+      const updatedDay=(state.days||[]).find(d=>d.id===currentDay.id)||null;
+      remotelyFinished=!!updatedDay?.archived;
+      currentDay=updatedDay&&!updatedDay.archived?updatedDay:null;
     }
     renderHome();renderCashHome();
+    if(remotelyFinished&&wasViewingGames){
+      closeManualRoundForm();
+      show('stats');
+      renderStats('day');
+      renderDayManager();
+      return;
+    }
     if(!document.getElementById('games').classList.contains('hidden'))renderGames();
     if(!document.getElementById('cash').classList.contains('hidden'))renderCash();
     if(!document.getElementById('appointments').classList.contains('hidden'))renderAppointments();
