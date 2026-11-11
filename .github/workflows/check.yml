@@ -1,0 +1,43 @@
+name: App prüfen (ohne Upload)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**.html'
+      - '**.php'
+      - '**.js'
+      - 'tests/**'
+      - '.github/workflows/**'
+  pull_request:
+    paths:
+      - '**.html'
+      - '**.php'
+      - '**.js'
+      - 'tests/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: badminton-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Repository abrufen
+        uses: actions/checkout@v4
+      - name: HTML, JavaScript und Regressionen prüfen
+        run: node --test tests/regression.test.cjs
+      - name: PHP-Syntax prüfen
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in *.php; do php -l "$file"; done
+      - name: Ergebnis zusammenfassen
+        run: echo 'App-Prüfung erfolgreich. Keine FTP-Zugangsdaten, kein Upload und keine Änderungen an Live-Daten.' >> "$GITHUB_STEP_SUMMARY"
