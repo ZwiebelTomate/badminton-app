@@ -1028,17 +1028,11 @@ html, body { touch-action: pan-x pan-y; }
 <h2>🗳️ Terminabstimmung</h2>
 <div id="pollContent" class="small">Umfragen werden geladen …</div>
 </div>
-<div class="card" style="padding:10px 14px">
-  <button type="button" class="secondary" id="pollHistoryToggle" style="width:100%;text-align:left;font-size:12px;padding:8px 10px" onclick="togglePollHistory()" aria-expanded="false">🕘 Letzte Umfragen ⌄</button>
-  <div id="pollHistoryContent" class="small" style="display:none;margin-top:10px"></div>
-</div>
 <div class="card">
   <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-    <div><h2 style="margin:0">Nächste Termine</h2><div class="small">Gemeinsame Badminton-Termine für alle.</div>
-</div>
-    <button id="apptNewBtn" onclick="openAppointmentForm()" aria-label="Neuen Termin erstellen" style="font-size:25px;line-height:1;width:48px;height:48px;padding:0;border-radius:50%">＋</button>
+    <h2 style="margin:0">Nächste Termine</h2>
+    <button type="button" class="secondary" id="apptNewBtn" onclick="openAppointmentForm()" aria-label="Neuen Termin hinzufügen" style="font-size:28px;line-height:1;width:44px;height:44px;padding:0">+</button>
   </div>
-  <button class="secondary" style="width:100%;margin-top:12px" onclick="callBadminton()">☎️ Badminton buchen</button>
 </div>
 
 <div id="apptFormCard" class="card hidden">
@@ -1076,6 +1070,10 @@ html, body { touch-action: pan-x pan-y; }
 <div style="display:flex;justify-content:center;margin:12px 0"><button class="secondary" style="width:auto;max-width:100%;padding:10px 14px;font-size:13px" onclick="shareAllAppointments()">Alle Termine inkl. Teilnehmer teilen</button></div>
 <button id="historyToggleBtn" class="secondary" style="width:100%;margin:10px 0" onclick="toggleAppointmentHistory()">🕘 Vergangene Termine anzeigen</button>
 <div id="appointmentHistory" class="hidden"></div>
+<div class="card" style="padding:10px 14px;margin-top:16px">
+  <button type="button" class="secondary" id="pollHistoryToggle" style="width:100%;text-align:left;font-size:12px;padding:8px 10px" onclick="togglePollHistory()" aria-expanded="false" aria-controls="pollHistoryContent">🕘 Letzte Umfragen</button>
+  <div id="pollHistoryContent" class="small" style="display:none;margin-top:10px"></div>
+</div>
 
 </div>
 </section>
@@ -2665,8 +2663,8 @@ function togglePollHistory(){pollHistoryVisible=!pollHistoryVisible;renderPollHi
 function renderPollHistory(){
  const btn=document.getElementById('pollHistoryToggle'),box=document.getElementById('pollHistoryContent');
  if(!btn||!box)return;
- const past=pollList.filter(p=>p.status==='closed'||(p.status==='open'&&new Date(String(p.closes_at).replace(' ','T'))<=new Date())).sort((a,b)=>String(b.closes_at).localeCompare(String(a.closes_at))).slice(0,5);
- btn.textContent='🕘 Letzte Umfragen'+(past.length?' ('+past.length+')':'')+(pollHistoryVisible?' ⌃':' ⌄');
+ const past=pollList.filter(p=>p.status==='closed'||(p.status==='open'&&new Date(String(p.closes_at).replace(' ','T'))<=new Date())).sort((a,b)=>String(b.closes_at).localeCompare(String(a.closes_at))).slice(0,3);
+ btn.textContent='🕘 Letzte Umfragen'+(past.length?' ('+past.length+')':'');
  btn.setAttribute('aria-expanded',String(pollHistoryVisible));
  box.style.display=pollHistoryVisible?'':'none';
  if(!pollHistoryVisible)return;
