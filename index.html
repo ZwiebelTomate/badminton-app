@@ -1567,9 +1567,14 @@ function shareSingleAppointment(id){
  const a=(state.appointments||[]).find(x=>String(x.id)===String(id));
  if(a)sendAppointmentToWhatsApp("Badminton-Termin\n\n"+appointmentShareText(a));
 }
+function appointmentEndDate(a){
+ const end=new Date(a.date+'T'+(a.to||a.from));
+ if(a.to&&a.from&&a.to<a.from)end.setDate(end.getDate()+1);
+ return end;
+}
 function shareAllAppointments(){
  const now=new Date();
- const future=(state.appointments||[]).filter(a=>new Date(a.date+"T"+a.to)>=now).sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from));
+ const future=(state.appointments||[]).filter(a=>appointmentEndDate(a)>now).sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from));
  if(!future.length){alert("Es sind keine kommenden Termine zum Teilen vorhanden.");return}
  const message="Unsere nächsten Termine:\n\n"+future.map(appointmentShareText).join("\n\n");
  sendAppointmentToWhatsApp(message);
@@ -1618,8 +1623,8 @@ function toggleAppointmentHistory(){appointmentHistoryVisible=!appointmentHistor
 function renderAppointments(){
  const list=document.getElementById("appointmentList"),history=document.getElementById("appointmentHistory"),btn=document.getElementById("historyToggleBtn"); if(!list)return;
  state.appointments??=[]; const now=new Date();
- const future=state.appointments.filter(a=>new Date(a.date+"T"+a.to)>=now).sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from));
- const past=state.appointments.filter(a=>new Date(a.date+"T"+a.to)<now).sort((a,b)=>(b.date+b.from).localeCompare(a.date+a.from));
+ const future=state.appointments.filter(a=>appointmentEndDate(a)>now).sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from));
+ const past=state.appointments.filter(a=>appointmentEndDate(a)<=now).sort((a,b)=>(b.date+b.from).localeCompare(a.date+a.from));
  list.innerHTML=future.length?future.map(appointmentCardHtml).join(""):'<div class="card"><div class="notice">Noch keine kommenden Termine eingetragen. Tippe oben auf ＋.</div></div>';
  if(btn){btn.classList.toggle("hidden",!past.length);btn.textContent=appointmentHistoryVisible?"🕘 Vergangene Termine ausblenden":`🕘 Vergangene Termine anzeigen (${past.length})`}
  if(history){history.classList.toggle("hidden",!appointmentHistoryVisible);history.innerHTML=appointmentHistoryVisible?(past.length?'<div class="small history-heading">Vergangene Termine</div>'+past.map(appointmentCardHtml).join(""):''):''}
@@ -2451,10 +2456,8 @@ function renderMyNextAppointment(){
    const participants=Array.isArray(a.participants)?a.participants:[];
    if(!participants.includes(me)||!a.date||!a.from)return false;
    // Den Termin bis zu seinem geplanten Ende anzeigen (lokale Uhrzeit).
-   const endTime=a.to||a.from;
-   const end=new Date(a.date+"T"+endTime+":00");
+   const end=appointmentEndDate(a);
    if(Number.isNaN(end.getTime()))return false;
-   if(a.to&&a.to<a.from)end.setDate(end.getDate()+1);
    return end>now;
  }).sort((a,b)=>(a.date+" "+a.from).localeCompare(b.date+" "+b.from));
  const a=appts[0];
@@ -2606,6 +2609,7 @@ window.addEventListener("DOMContentLoaded", async ()=>{
   renderHome();
   renderCashHome();
   showFirstUserChoiceIfNeeded();
+  loadPolls();
   if(typeof refreshPushStatus==="function")refreshPushStatus();
  if(typeof loadPushPreferences==="function")loadPushPreferences();
   if(document.getElementById("apptDate")) document.getElementById("apptDate").min=today();
@@ -2661,7 +2665,7 @@ function togglePollHistory(){pollHistoryVisible=!pollHistoryVisible;renderPollHi
 function renderPollHistory(){
  const btn=document.getElementById('pollHistoryToggle'),box=document.getElementById('pollHistoryContent');
  if(!btn||!box)return;
- const past=pollList.filter(p=>p.status==='closed'||(p.status==='open'&&new Date(String(p.closes_at).replace(' ','T'))<=new Date())).slice(0,5);
+ const past=pollList.filter(p=>p.status==='closed'||(p.status==='open'&&new Date(String(p.closes_at).replace(' ','T'))<=new Date())).sort((a,b)=>String(b.closes_at).localeCompare(String(a.closes_at))).slice(0,5);
  btn.textContent='🕘 Letzte Umfragen'+(past.length?' ('+past.length+')':'')+(pollHistoryVisible?' ⌃':' ⌄');
  btn.setAttribute('aria-expanded',String(pollHistoryVisible));
  box.style.display=pollHistoryVisible?'':'none';
@@ -2675,7 +2679,7 @@ function renderPollHistory(){
      return '<div style="margin-top:9px"><strong>KW '+(week?.length?pollWeekNumber(week[0]):'?')+'</strong>'+
        results.map(d=>{
          const selected=approved.includes(d.date);
-         const appt=selected?(state.appointments||[]).find(a=>a.date===d.date):null;
+         const appt=selected?(state.appointments||[]).find(a=>a.date===d.date&&appointmentEndDate(a)>new Date()):null;
          return '<div style="margin:5px 0;padding:6px 8px;border:1px solid #315c51;border-radius:8px;font-size:12px">'+
            (selected?'✓ ':'')+esc(pollDate(d.date))+' · '+Number(d.count||0)+' Zusagen'+
            '<div style="opacity:.8;font-size:11px">'+esc((d.players||[]).join(', ')||'Keine Zusagen')+'</div>'+
@@ -2693,7 +2697,7 @@ async function loadPolls(){const el=document.getElementById('pollContent');if(!e
 async function loadMyPollVote(){const p=pollList.find(p=>p.id===pollCurrent),me=getMe();if(!p||!me){pollAnswers={};pollHasVoted=false;return}try{const r=await fetch('poll_api.php?action=myvote&poll_id='+p.id+'&player='+encodeURIComponent(me),{cache:'no-store'});const j=await r.json();pollAnswers=j.answers||{};pollHasVoted=[0,1,2].every(i=>Array.isArray(pollAnswers[i]));if(pollHasVoted)pollExpanded=false}catch(e){pollAnswers={};pollHasVoted=false}}
 function pollToggleExpanded(){pollExpanded=!pollExpanded;renderPolls()}
 function renderPolls(){const el=document.getElementById('pollContent');if(!el)return;const section=document.getElementById('pollSection');const p=pollList.find(p=>p.id===pollCurrent&&p.status==='open'&&new Date(p.closes_at.replace(' ','T'))>new Date());if(section)section.style.display=p?'':'none';if(!p){el.innerHTML='';renderPollApproval();return}const me=getMe(),open=true;let s=`<button type="button" class="secondary" style="width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:8px" onclick="pollToggleExpanded()"><span><strong>🏸 Terminabstimmung</strong><br><small>${pollHasVoted?'✅ Du hast abgestimmt':'🟢 Jetzt abstimmen'} · ${p.voters.length} von ${p.total} Spielern abgestimmt</small></span><span style="font-size:21px">${pollExpanded?'⌃':'⌄'}</span></button>`;
-const missing=(state.players||[]).filter(n=>!p.voters.includes(n));s+=`<div class="small" style="font-size:11px;margin-top:6px;opacity:.85">${missing.length?'Fehlen noch: '+esc(missing.join(', ')):'Alle haben abgestimmt ✓'}</div>`;if(!pollExpanded){s+='<div class="small" style="margin-top:9px">Tippe zum Aufklappen, um alle Zusagen und Namen zu sehen'+(pollHasVoted?' oder deine Abstimmung zu ändern':'')+'.</div>';el.innerHTML=s;return}
+const missing=(state.players||[]).filter(n=>!p.voters.includes(n));s+=`<div class="small" style="font-size:11px;margin-top:6px;opacity:.85">${missing.length?'Fehlen noch: '+esc(missing.join(', ')):'Alle haben abgestimmt ✓'}</div>`;if(!pollExpanded){s+='<div class="small" style="margin-top:9px">Tippe zum Aufklappen, um alle Zusagen und Namen zu sehen'+(pollHasVoted?' oder deine Abstimmung zu ändern':'')+'.</div>';el.innerHTML=s;renderPollApproval();return}
 s+=`<div class="small" style="margin-top:12px">Ende: ${esc(pollCloseDate(p.closes_at))} Uhr · ${p.voters.length} von ${p.total} Spielern abgestimmt</div>`;
 if(!me)s+='<div class="notice">Bitte zuerst auf der Startseite deinen Spielernamen auswählen.</div>';
 p.weeks.forEach((week,i)=>{const chosen=pollAnswers[i]||[];const none=Object.prototype.hasOwnProperty.call(pollAnswers,i)&&chosen.length===0;s+=`<div style="border:1px solid #315c51;background:#10292b;border-radius:12px;margin-top:10px;padding:9px"><strong style="color:#7df2ac;font-size:14px">Kalenderwoche ${pollWeekNumber(week[0])}</strong><div class="small" style="margin:5px 0">Wähle alle passenden Tage:</div>`;week.forEach(day=>{const d=(p.results[i]||[]).find(x=>x.date===day);s+=`<label class="appt-option" style="min-height:35px;margin-top:3px;padding:6px 8px;font-size:12px"><input type="checkbox" ${chosen.includes(day)?'checked':''} ${!me?'disabled':''} onchange="pollToggle(${i},'${day}',this.checked)"><span>${esc(pollDate(day))} · ${d?.count||0} können<br><small style="opacity:.8;font-size:10px">${d?.players?.length?esc(d.players.join(", ")):"Noch keine Zusagen"}</small></span></label>`});s+=`<label class="appt-option" style="min-height:35px;margin-top:3px;padding:6px 8px;font-size:12px"><input type="checkbox" ${none?'checked':''} ${!me?'disabled':''} onchange="pollNone(${i},this.checked)"><span>Ich kann an keinem der Tage<br><small style="opacity:.8;font-size:10px">${(p.none?.[i]||[]).length?esc(p.none[i].join(", ")):"Noch niemand"}</small></span></label>`;s+='</div>'});

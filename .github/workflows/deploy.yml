@@ -29,9 +29,25 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Repository abrufen
         uses: actions/checkout@v4
+
+      - name: HTML und Regressionen prüfen
+        run: node --test tests/regression.test.cjs
+
+      - name: Freigaben protokollieren
+        env:
+          CHECK_ONLY: ${{ inputs.nur_pruefen }}
+          HTML_APPROVED: ${{ inputs.html_freigeben }}
+          PHP_APPROVED: ${{ inputs.php_freigeben }}
+        run: |
+          echo "Nur prüfen: $CHECK_ONLY; HTML: $HTML_APPROVED; PHP: $PHP_APPROVED" >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$CHECK_ONLY" == false && "$HTML_APPROVED" != true && "$PHP_APPROVED" != true ]]; then
+            echo 'Keine Datei freigegeben.' >&2
+            exit 1
+          fi
 
       - name: PHP-Dateien auf Syntax prüfen (ohne Veröffentlichung)
         run: |
@@ -39,10 +55,12 @@ jobs:
 
       - name: FTPS-Werkzeug installieren
         if: ${{ inputs.nur_pruefen == false }}
+        timeout-minutes: 3
         run: sudo apt-get update -qq && sudo apt-get install -y lftp
 
       - name: index.html separat veröffentlichen (nur bei Freigabe)
         if: ${{ inputs.nur_pruefen == false && inputs.html_freigeben == true }}
+        timeout-minutes: 4
         env:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         shell: bash
@@ -52,26 +70,36 @@ jobs:
             echo "FTP_PASSWORD ist nicht hinterlegt."
             exit 1
           fi
-          lftp -u "badmintongruppe,${FTP_PASSWORD}" ftp://badmintongruppe.lima-ftp.de <<'LFTP'
+          timeout 180s lftp -u "badmintongruppe,${FTP_PASSWORD}" ftp://badmintongruppe.lima-ftp.de <<'LFTP'
           set cmd:fail-exit yes
+          set net:timeout 20
+          set net:max-retries 2
+          set net:reconnect-interval-base 5
           set ftp:ssl-force yes
           set ftp:ssl-protect-data yes
           set ssl:verify-certificate yes
           set ftp:passive-mode yes
           put -O /default-website/Badminton/ index.html
+          get /default-website/Badminton/index.html -o /tmp/deployed-index.html
           bye
           LFTP
+          cmp index.html /tmp/deployed-index.html
+          echo 'index.html per FTPS veröffentlicht und bytegenau zurückgelesen. Keine PHP-Dateien in diesem Schritt.' >> "$GITHUB_STEP_SUMMARY"
 
       - name: PHP-Dateien separat veröffentlichen (nur bei ausdrücklicher Freigabe)
         if: ${{ inputs.nur_pruefen == false && inputs.php_freigeben == true }}
+        timeout-minutes: 4
         env:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         shell: bash
         run: |
           set -euo pipefail
           test -n "${FTP_PASSWORD}"
-          lftp -u "badmintongruppe,${FTP_PASSWORD}" ftp://badmintongruppe.lima-ftp.de <<'LFTP'
+          timeout 180s lftp -u "badmintongruppe,${FTP_PASSWORD}" ftp://badmintongruppe.lima-ftp.de <<'LFTP'
           set cmd:fail-exit yes
+          set net:timeout 20
+          set net:max-retries 2
+          set net:reconnect-interval-base 5
           set ftp:ssl-force yes
           set ftp:ssl-protect-data yes
           set ssl:verify-certificate yes
