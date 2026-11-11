@@ -2446,10 +2446,12 @@ function renderMyNextAppointment(){
  const appts=(state.appointments||[]).filter(a=>{
    const participants=Array.isArray(a.participants)?a.participants:[];
    if(!participants.includes(me)||!a.date||!a.from)return false;
-   // Der eigene heutige Termin bleibt den ganzen Tag sichtbar – auch nach Beginn.
-   if(a.date===todayStr)return true;
-   const start=new Date(a.date+"T"+a.from+":00");
-   return !isNaN(start)&&start>=now;
+   // Den Termin bis zu seinem geplanten Ende anzeigen (lokale Uhrzeit).
+   const endTime=a.to||a.from;
+   const end=new Date(a.date+"T"+endTime+":00");
+   if(Number.isNaN(end.getTime()))return false;
+   if(a.to&&a.to<a.from)end.setDate(end.getDate()+1);
+   return end>now;
  }).sort((a,b)=>(a.date+" "+a.from).localeCompare(b.date+" "+b.from));
  const a=appts[0];
  if(!a){box.innerHTML="";return}
@@ -2605,6 +2607,7 @@ window.addEventListener("DOMContentLoaded", async ()=>{
   if(document.getElementById("apptDate")) document.getElementById("apptDate").min=today();
   if(typeof renderStats==="function") renderStats("all");
   setInterval(syncReadOnly,5000);
+  setInterval(()=>{if(!document.hidden)renderMyNextAppointment()},15000);
   setTimeout(checkForAppUpdate,2500);
   setInterval(checkForAppUpdate,90000);
   document.addEventListener("visibilitychange",()=>{if(!document.hidden){syncReadOnly();checkForAppUpdate()}});
